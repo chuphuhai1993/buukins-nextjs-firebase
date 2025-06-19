@@ -69,7 +69,7 @@ export default function BioPage() {
         console.log('Fetching data for slug:', slug)
         
         // Query user theo slug
-        const q = query(collection(db, 'users'), where('bio.slug', '==', slug));
+        const q = query(collection(db, 'users'), where('slug', '==', slug));
         const snap = await getDocs(q);
         if (snap.empty) {
           console.log('No data found for slug:', slug)
