@@ -560,3 +560,9 @@ export default function BioPage() {
     </div>
   )
 }
+
+export async function getServerSideProps(context: any) {
+  return {
+    props: {}, // để page đảm bảo có dữ liệu ngay từ server
+  }
+}
