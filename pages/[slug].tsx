@@ -60,34 +60,32 @@ export default function BioPage() {
   const [snackMessage, setSnackMessage] = useState<string>('');
 
   useEffect(() => {
-    if (!router.isReady || !slug) return;
-  
-    const safeSlug = Array.isArray(slug) ? slug[0] : slug;
-  
+    if (!slug) return;
+    
     const fetchData = async () => {
       try {
         setLoading(true)
         setError(null)
-        console.log('Fetching data for slug:', safeSlug)
+        console.log('Fetching data for slug:', slug)
         
-        const q = query(collection(db, 'users'), where('slug', '==', safeSlug));
-        console.log(">> Querying users.slug == ", safeSlug)
+        // Query user theo slug
+        const q = query(collection(db, 'users'), where('bio.slug', '==', slug));
         const snap = await getDocs(q);
         if (snap.empty) {
-          console.log(">> Snap is EMPTY")
-          setError('Store not found');
-          return;
+          console.log('No data found for slug:', slug)
+          setError('Store not found')
+          return
         }
-  
         const userDoc = snap.docs[0];
         const userData = userDoc.data() as StoreData;
         setUserId(userDoc.id);
-  
+
+        // Lấy services từ subcollection
         const servicesSnap = await getDocs(collection(db, 'users', userDoc.id, 'services'));
         const services: any[] = [];
         servicesSnap.forEach(doc => services.push(doc.data()));
         userData.services = services;
-  
+
         console.log('Fetched data:', userData)
         setStoreData(userData)
       } catch (err) {
@@ -97,12 +95,11 @@ export default function BioPage() {
         setLoading(false)
       }
     }
-  
-    fetchData();
-  }, [router.isReady, slug])  
+    
+    fetchData()
+  }, [slug])
 
   // Fetch working hours khi mở form booking
-  
   useEffect(() => {
     if (!showBookingForm || !userId) return;
     const fetchWorkingHours = async () => {
@@ -562,10 +559,4 @@ export default function BioPage() {
       </div>
     </div>
   )
-}
-
-export async function getServerSideProps(context: any) {
-  return {
-    props: {}, // để page đảm bảo có dữ liệu ngay từ server
-  }
 }
