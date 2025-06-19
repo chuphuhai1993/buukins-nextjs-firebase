@@ -69,12 +69,15 @@ export default function BioPage() {
         console.log('Fetching data for slug:', slug)
         
         // Query user theo slug
-        const q = query(collection(db, 'users'), where('slug', '==', slug));
+        const safeSlug = Array.isArray(slug) ? slug[0] : slug;
+        const q = query(collection(db, 'users'), where('slug', '==', safeSlug));
+        console.log(">> SafeSlug = ", safeSlug)
+        console.log(">> Querying users.slug == ", safeSlug)
         const snap = await getDocs(q);
         if (snap.empty) {
-          console.log('No data found for slug:', slug)
-          setError('Store not found')
-          return
+          console.log(">> Snap is EMPTY")
+          setError('Store not found');
+          return;
         }
         const userDoc = snap.docs[0];
         const userData = userDoc.data() as StoreData;
