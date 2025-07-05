@@ -99,16 +99,22 @@ export default function BioPage() {
     fetchData()
   }, [slug])
 
-  // Fetch working hours khi mở form booking
+  // Fetch working times khi mở form booking
   useEffect(() => {
     if (!showBookingForm || !userId) return;
-    const fetchWorkingHours = async () => {
+    const fetchWorkingTimes = async () => {
       setBookingLoading(true);
       try {
-        const ref = doc(db, 'users', userId, 'settings', 'working_hours');
+        const ref = doc(db, 'users', userId, 'settings', 'working_times');
         const snap = await getDoc(ref);
         if (snap.exists()) {
-          setWorkingHours(snap.data().workingHours);
+          const data = snap.data();
+          setWorkingHours({
+            start: data.workingHours?.start,
+            end: data.workingHours?.end,
+            days: data.workingDays || [],
+            slots: data.workingSlots || 1,
+          });
         }
       } catch (e) {
         setWorkingHours(null);
@@ -116,7 +122,7 @@ export default function BioPage() {
         setBookingLoading(false);
       }
     };
-    fetchWorkingHours();
+    fetchWorkingTimes();
   }, [showBookingForm, userId]);
 
   // Tính toán danh sách ngày hợp lệ
@@ -153,10 +159,9 @@ export default function BioPage() {
       // Lấy service đã chọn
       const selectedService = (storeData?.services ?? []).find(s => s.id === form.serviceId);
       if (!selectedService) return;
-      // Lấy tất cả booking của ngày đó, user đó, service đó
+      // Lấy tất cả booking của ngày đó, user đó, KHÔNG filter serviceId
       const q = query(collection(db, 'bookings'),
         where('userId', '==', userId),
-        where('serviceId', '==', form.serviceId),
         where('date', '==', bookingDate)
       );
       const snap = await getDocs(q);
@@ -166,13 +171,12 @@ export default function BioPage() {
       const startHour = parseInt(workingHours.start.split(':')[0], 10);
       const endHour = parseInt(workingHours.end.split(':')[0], 10);
       const duration = selectedService.duration;
-      const slot = selectedService.slot;
+      const slot = Math.max(1, Number(workingHours.slots) || 1);
       const times: {time: string, label: string, disabled: boolean, full: boolean}[] = [];
       for (let h = startHour; h < endHour; h++) {
         const blockStart = dayjs(`${bookingDate} ${h.toString().padStart(2, '0')}:00`);
-        const blockEnd = blockStart.add(duration - 1, 'minute');
-        const label = `${blockStart.format('H:mm')} - ${blockStart.add(1, 'hour').format('H:mm')}`;
-        // Disable nếu là hôm nay và giờ đã trôi qua
+        const blockEnd = blockStart.add(duration, 'minute'); // nửa mở, không bao gồm blockEnd
+        const label = `${blockStart.format('H:mm')} - ${blockEnd.format('H:mm')}`;
         let isPast = false;
         const now = dayjs();
         if (bookingDate === now.format('YYYY-MM-DD') && h < now.hour()) {
@@ -182,23 +186,29 @@ export default function BioPage() {
           times.push({time: blockStart.format('HH:00'), label, disabled: true, full: false});
           continue;
         }
-        // Kiểm tra overlap và slot
-        let count = 0;
+        let isFull = false;
         let customerBookedThisSlot = false;
-        for (const b of bookings) {
-          const bStart = dayjs(`${b.date} ${b.time}`);
-          const bEnd = bStart.add(duration - 1, 'minute');
-          if (bStart.isBefore(blockEnd) && bEnd.isAfter(blockStart)) {
-            count++;
-            // Kiểm tra xem customer hiện tại đã book khung giờ này chưa
-            if (b.phone === form.phone) {
+        const bookingIntervals = bookings
+          .filter(b => b.status === 'confirmed' && b.date === bookingDate)
+          .map(b => {
+            const bStart = dayjs(`${b.date} ${b.time}`);
+            const bService = (storeData?.services ?? []).find(s => s.id === b.serviceId);
+            const bDuration = Number(bService?.duration) || 60;
+            const bEnd = bStart.add(bDuration, 'minute');
+            return { bStart, bEnd, phone: b.phone };
+          });
+        let overlapCount = 0;
+        for (const interval of bookingIntervals) {
+          if (blockStart.isBefore(interval.bEnd) && interval.bStart.isBefore(blockEnd)) {
+            overlapCount++;
+            if (interval.phone === form.phone) {
               customerBookedThisSlot = true;
             }
           }
         }
-        const isFull = count >= slot;
+        isFull = overlapCount >= slot;
         const finalLabel = isFull ? `${label} (Đã hết chỗ)` : customerBookedThisSlot ? `${label} (Bạn đã đặt)` : label;
-        times.push({time: blockStart.format('HH:00'), label: finalLabel, disabled: count >= slot || isPast || customerBookedThisSlot, full: isFull});
+        times.push({time: blockStart.format('HH:00'), label: finalLabel, disabled: isFull || isPast || customerBookedThisSlot, full: isFull});
       }
       setAvailableTimes(times);
       setBookingTime('');
@@ -293,24 +303,43 @@ export default function BioPage() {
         });
       }
 
-      // Kiểm tra xem customer đã book khung giờ này chưa
-      const existingBookingQuery = query(
+      // FINAL SLOT CHECK (giống logic hiển thị slot)
+      const selectedService = (storeData?.services ?? []).find(s => s.id === form.serviceId);
+      if (!selectedService) return;
+      const duration = selectedService.duration;
+      const slot = Math.max(1, Number(workingHours.slots) || 1);
+      const blockStart = dayjs(`${date} ${time}`);
+      const blockEnd = blockStart.add(duration, 'minute');
+      // Lấy tất cả booking đã confirmed của ngày đó
+      const bookingsSnap = await getDocs(query(
         collection(db, 'bookings'),
         where('userId', '==', userId),
-        where('serviceId', '==', form.serviceId),
         where('date', '==', date),
-        where('time', '==', time),
-        where('phone', '==', form.phone)
-      );
-      const existingBookingSnap = await getDocs(existingBookingQuery);
-      
-      if (!existingBookingSnap.empty) {
-        setError('Bạn đã đặt lịch cho khung giờ này rồi!');
+        where('status', '==', 'confirmed')
+      ));
+      const bookings = bookingsSnap.docs.map(doc => doc.data());
+      const bookingIntervals = bookings
+        .filter(b => b.status === 'confirmed' && b.date === date)
+        .map(b => {
+          const bStart = dayjs(`${b.date} ${b.time}`);
+          const bService = (storeData?.services ?? []).find(s => s.id === b.serviceId);
+          const bDuration = Number(bService?.duration) || 60;
+          const bEnd = bStart.add(bDuration, 'minute');
+          return { bStart, bEnd };
+        });
+      let overlapCount = 0;
+      for (const interval of bookingIntervals) {
+        if (blockStart.isBefore(interval.bEnd) && interval.bStart.isBefore(blockEnd)) {
+          overlapCount++;
+        }
+      }
+      if (overlapCount >= slot) {
+        setSnackMessage('Đã hết slot');
+        setTimeout(() => setSnackMessage(''), 3000);
         return;
       }
 
       // Lấy price từ service đã chọn
-      const selectedService = (storeData?.services ?? []).find(s => s.id === form.serviceId);
       const expectedRevenue = selectedService ? selectedService.price : 0;
 
       // Tạo booking
@@ -417,21 +446,12 @@ export default function BioPage() {
                   <p className="font-semibold text-sm">{service.price.toLocaleString()}đ</p>
                   <p className="text-gray-500 text-sm">{service.duration} phút</p>
                 </div>
-                {service.slot > 0 ? (
-                  <button
-                    onClick={() => handleBookingClick(service)}
-                    className="h-[40px] bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-blue-700"
-                  >
-                    Đặt lịch
-                  </button>
-                ) : (
-                  <button
-                    disabled
-                    className="bg-gray-200 text-gray-500 px-6 py-2 rounded-full text-sm font-medium"
-                  >
-                    Hết chỗ
-                  </button>
-                )}
+                <button
+                  onClick={() => handleBookingClick(service)}
+                  className="h-[40px] bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-blue-700"
+                >
+                  Đặt lịch
+                </button>
               </div>
             </div>
           ))}
