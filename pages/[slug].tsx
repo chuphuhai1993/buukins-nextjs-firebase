@@ -58,6 +58,7 @@ export default function BioPage() {
   const [bookingsOfDay, setBookingsOfDay] = useState<any[]>([]);
   const [customerDocId, setCustomerDocId] = useState<string | null>(null);
   const [snackMessage, setSnackMessage] = useState<string>('');
+  const [themeData, setThemeData] = useState<any>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -88,6 +89,31 @@ export default function BioPage() {
 
         console.log('Fetched data:', userData)
         setStoreData(userData)
+        // Fetch theme
+        const themeKey = userDoc.data().theme || userDoc.data().bio?.theme || 'default';
+        const themeCacheKey = `theme_${themeKey}`;
+        let themeObj = null;
+        try {
+          const cached = localStorage.getItem(themeCacheKey);
+          if (cached) {
+            themeObj = JSON.parse(cached);
+            setThemeData(themeObj);
+          }
+        } catch (e) {}
+        if (!themeObj) {
+          const themeRef = doc(db, 'settings', 'themes');
+          const themeSnap = await getDoc(themeRef);
+          if (themeSnap.exists()) {
+            const allThemes = themeSnap.data();
+            const theme = allThemes[themeKey] || allThemes['default'];
+            setThemeData(theme);
+            try {
+              localStorage.setItem(themeCacheKey, JSON.stringify(theme));
+            } catch (e) {}
+          } else {
+            setThemeData(null);
+          }
+        }
       } catch (err) {
         console.error('Error fetching data:', err)
         setError('Error loading store data')
@@ -98,6 +124,36 @@ export default function BioPage() {
     
     fetchData()
   }, [slug])
+
+  // Áp dụng biến theme lên body (áp dụng cho toàn trang)
+  useEffect(() => {
+    if (!themeData) return;
+    const root = document.body;
+    root.style.setProperty('--backgroundColor', themeData.backgroundColor || '#F5F5F5');
+    root.style.setProperty('--surfaceColor', themeData.surfaceColor || '#FFF');
+    root.style.setProperty('--textColor', themeData.textColor || '#29303E');
+    root.style.setProperty('--primaryColor', themeData.primaryColor || '#2563EC');
+    root.style.setProperty('--onPrimaryColor', themeData.onPrimaryColor || '#FFF');
+    root.style.setProperty('--borderColor', themeData.borderColor || '#FFF');
+    root.style.setProperty('--borderWidth', (themeData.borderWidth ?? 0) + 'px');
+    root.style.setProperty('--borderRadius', (themeData.borderRadius ?? 16) + 'px');
+    root.style.setProperty('--buttonRadius', (themeData.buttonRadius ?? 100) + 'px');
+
+    root.style.setProperty('--secondaryColor', '#EAEAEA');
+    root.style.setProperty('--highlightColor', '#2463EB');
+    return () => {
+      // Reset về mặc định khi unmount
+      root.style.removeProperty('--backgroundColor');
+      root.style.removeProperty('--surfaceColor');
+      root.style.removeProperty('--textColor');
+      root.style.removeProperty('--primaryColor');
+      root.style.removeProperty('--onPrimaryColor');
+      root.style.removeProperty('--borderColor');
+      root.style.removeProperty('--borderWidth');
+      root.style.removeProperty('--borderRadius');
+      root.style.removeProperty('--buttonRadius');
+    };
+  }, [themeData]);
 
   // Fetch working times khi mở form booking
   useEffect(() => {
@@ -176,7 +232,9 @@ export default function BioPage() {
       for (let h = startHour; h < endHour; h++) {
         const blockStart = dayjs(`${bookingDate} ${h.toString().padStart(2, '0')}:00`);
         const blockEnd = blockStart.add(duration, 'minute'); // nửa mở, không bao gồm blockEnd
-        const label = `${blockStart.format('H:mm')} - ${blockEnd.format('H:mm')}`;
+        const label = `${blockStart.format('H')}h - ${blockEnd.format('H')}h`;
+        // const label = `${blockStart.format('H:mm')} - ${blockEnd.format('H:mm')}`;
+        // const label = `${blockStart.format('H:mm')}`;
         let isPast = false;
         const now = dayjs();
         if (bookingDate === now.format('YYYY-MM-DD') && h < now.hour()) {
@@ -207,7 +265,8 @@ export default function BioPage() {
           }
         }
         isFull = overlapCount >= slot;
-        const finalLabel = isFull ? `${label} (Đã hết chỗ)` : customerBookedThisSlot ? `${label} (Bạn đã đặt)` : label;
+        // const finalLabel = isFull ? `${label} (Hết chỗ)` : customerBookedThisSlot ? `${label} (Bạn đã đặt)` : label;
+        const finalLabel = isFull ? `${label}` : customerBookedThisSlot ? `${label}` : label;
         times.push({time: blockStart.format('HH:00'), label: finalLabel, disabled: isFull || isPast || customerBookedThisSlot, full: isFull});
       }
       setAvailableTimes(times);
@@ -276,6 +335,7 @@ export default function BioPage() {
 
   const handleSubmitCustom = async (date: string, time: string) => {
     if (!userId) return;
+    setBookingLoading(true);
     try {
       // Kiểm tra customer theo số điện thoại và userId
       const customerQuery = query(
@@ -364,14 +424,15 @@ export default function BioPage() {
     } catch (err) {
       console.error('Error creating booking:', err)
       setError('Error creating booking')
+    } finally {
+      setBookingLoading(false);
     }
   }
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading store information...</p>
+        <p className="text-sm">Loading store...</p>
       </div>
     </div>
   );
@@ -396,187 +457,200 @@ export default function BioPage() {
     .filter(service => service.isVisible)
     .sort((a, b) => a.order - b.order);
 
+  console.log('themeData:', themeData);
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-[520px] mx-auto p-2 sm:px-0">
-        {/* Store Header */}
-        <div className="bg-white rounded-2xl px-8 pt-3 pb-6 mb-3 text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden bg-orange-50">
-            <img 
-              src={storeData.bio.avatarUrl || '/default-avatar.png'} 
-              alt={storeData.bio.storeName}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <h1 className="text-xl font-semibold mb-2">{storeData.bio.storeName}</h1>
-          <p className="text-sm text-gray-600">{storeData.bio.bio}</p>   
+    <div
+      className="main-container"
+      // style={{
+      //   // Set CSS variables for theme
+      //   '--backgroundColor': themeData?.backgroundColor || '#F5F5F5',
+      //   '--surfaceColor': themeData?.surfaceColor || '#FFF',
+      //   '--textColor': themeData?.textColor || '#29303E',
+      //   '--primaryColor': themeData?.primaryColor || '#2563EC',
+      //   '--onPrimaryColor': themeData?.onPrimaryColor || '#FFF',
+      //   '--borderColor': themeData?.borderColor || '#FFF',
+      //   '--borderWidth': (themeData?.borderWidth ?? 0) + 'px',
+      //   '--borderRadius': (themeData?.borderRadius ?? 16) + 'px',
+      //   '--buttonRadius': (themeData?.buttonRadius ?? 100) + 'px',
+      // } as React.CSSProperties}
+    >
+      <div className="card text-center px-4 pb-4 pt-8 mb-3">
+        <div className="avatar">
+          <img
+            src={storeData.bio.avatarUrl || '/default-avatar.png'}
+            alt={storeData.bio.storeName}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
         </div>
-
-        {/* Social Links */}
-        <div className="bg-white rounded-2xl p-4 mb-3">
-          <h2 className="text-sm font-semibold mb-2">Liên kết</h2>
-          {Object.entries(storeData.bio.socials).map(([id, social]) => (
-            <a 
-              key={id}
-              href={social.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm mb-1 block text-blue-600 hover:underline"
-            >
-              {social.link}
-            </a>
-          ))}
-        </div>
-
-        {/* Store Description */}
-        <div className="bg-white rounded-2xl p-4 mb-8">
-          <h2 className="text-sm font-semibold mb-2">Giới thiệu</h2>
-          <p className="text-sm text-gray-600">{storeData.bio.intro}</p>
-        </div>
-
-        {/* Services List */}
-        <div className="space-y-4">
-          <h2 className="text-sm font-semibold px-4">Dịch vụ</h2>
-          {visibleServices.map(service => (
-            <div key={service.id} className="bg-white rounded-2xl p-4">
-              <h3 className="text-md font-semibold mb-1">{service.name}</h3>
-              <p className="text-gray-600 text-sm mb-6">{service.description}</p>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-semibold text-sm">{service.price.toLocaleString()}đ</p>
-                  <p className="text-gray-500 text-sm">{service.duration} phút</p>
-                </div>
-                <button
-                  onClick={() => handleBookingClick(service)}
-                  className="h-[40px] bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-blue-700"
-                >
-                  Đặt lịch
-                </button>
+        <h1>{storeData.bio.storeName}</h1>
+        <p className="text-sm">{storeData.bio.bio}</p>
+      </div>
+      <div className="card p-4 mb-3 overflow-hidden">
+        <h2 className="text-sm font-semibold mb-2">Liên kết</h2>
+        {Object.entries(storeData.bio.socials).map(([id, social]) => (
+          <a
+            key={id}
+            href={social.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mr-2"
+            style={{ color: 'var(--highlightColor)' }}
+          >
+            {social.title}
+          </a>
+        ))}
+      </div>
+      <div className="card p-4 mb-8">
+        <h2 className="text-sm font-semibold mb-2">Giới thiệu</h2>
+        <p className="text-sm">{storeData.bio.intro}</p>
+      </div>
+      <div className="mt-4">
+        <h2 className="text-sm font-semibold px-4">Dịch vụ</h2>
+        {visibleServices.map(service => (
+          <div key={service.id} className="card p-4">
+            <h3 className="text-md font-semibold mb-1">{service.name}</h3>
+            <p className="text-sm mb-6">{service.description}</p>
+            <div className="flex-between">
+              <div>
+                <p className="font-semibold text-sm">{service.price.toLocaleString()}đ</p>
+                <p className="text-sm">{service.duration} phút</p>
               </div>
-            </div>
-          ))}
-          {visibleServices.length === 0 && (
-            <div className="text-gray-500 text-center py-8">Chưa có dịch vụ nào được hiển thị.</div>
-          )}
-        </div>
-
-        {/* Booking Form Dialog */}
-        {showBookingForm && !submitted && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white w-full max-w-md rounded-lg">
-              <div className="px-4 py-3 border-b">
-                <h2 className="text-lg font-semibold">Đặt lịch {form.serviceName}</h2>
-              </div>
-              <div className="p-4 space-y-4">
-                <input
-                  type="tel"
-                  placeholder="Số điện thoại"
-                  className="w-full p-2 text-sm border rounded-lg bg-gray-50"
-                  value={form.phone}
-                  onChange={e => handlePhoneChange(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Họ và tên"
-                  className="w-full p-2 text-sm border rounded-lg bg-gray-50"
-                  value={form.name}
-                  onChange={e => setForm({ ...form, name: e.target.value })}
-                />
-                {/* Chọn ngày */}
-                <div>
-                  <div className="flex gap-2 overflow-x-auto py-2">
-                    {availableDates.map(d => (
-                      <button
-                      key={d.date}
-                      disabled={d.disabled}
-                      className={`px-3 py-2 text-sm rounded-full whitespace-nowrap
-                        ${d.disabled
-                          ? 'opacity-40 cursor-not-allowed bg-gray-200'
-                          : `border-2 ${bookingDate === d.date ? 'border-black font-semibold' : 'border-gray-200 hover:border-black'} bg-white`}
-                      `}
-                      onClick={() => setBookingDate(d.date)}
-                    >
-                      {d.label}
-                    </button>                                        
-                    ))}
-                  </div>
-                </div>
-                {/* Chọn giờ */}
-                <div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {availableTimes.map(t => (
-                      <button
-                      key={t.time}
-                      disabled={t.disabled}
-                      className={`px-1 py-3 rounded-lg text-sm
-                        ${t.full
-                          ? 'bg-red-100' // Không có border
-                          : `border-2 ${bookingTime === t.time ? 'border-black font-semibold' : 'border-gray-200 hover:border-black'}`
-                        }
-                        ${t.disabled ? 'opacity-40 cursor-not-allowed bg-gray-200' : ''}
-                      `}
-                      onClick={() => handleTimeSlotClick(t)}
-                    >
-                      {t.label}
-                    </button>                    
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 border-t space-x-3 flex">
-                <button
-                  onClick={() => handleSubmitCustom(bookingDate, bookingTime)}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-full font-medium text-sm hover:bg-blue-700 disabled:opacity-50"
-                  disabled={!form.name || !form.phone || !bookingDate || !bookingTime || bookingLoading}
-                >
-                  Đặt ngay
-                </button>
-                <button
-                  onClick={() => setShowBookingForm(false)}
-                  className="flex-1 bg-gray-100 py-3 rounded-full font-medium text-sm hover:bg-gray-200"
-                >
-                  Hủy
-                </button>
-              </div>
-              {bookingLoading && (
-                <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Success Message */}
-        {submitted && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white p-6 rounded-lg text-center max-w-sm w-full">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-bold mb-2 text-green-600">Đặt lịch thành công!</h2>
-              <p className="text-gray-600 mb-4">Chúng tôi sẽ liên hệ với bạn để xác nhận lịch hẹn.</p>
               <button
-                onClick={() => setSubmitted(false)}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700"
+                onClick={() => handleBookingClick(service)}
+                className="button"
               >
-                Đóng
+                Đặt lịch
               </button>
             </div>
           </div>
-        )}
-
-        {/* Snack Message */}
-        {snackMessage && (
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-            <div className="bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg">
-              <p>{snackMessage}</p>
-            </div>
-          </div>
+        ))}
+        {visibleServices.length === 0 && (
+          <div className="text-center py-8">Chưa có dịch vụ nào được hiển thị.</div>
         )}
       </div>
+      {showBookingForm && !submitted && (
+        <div className="modal">
+          <div className="modal-content card">
+            <div className="mb-4">
+              <h2 className="text-lg text-center font-semibold">Đặt lịch {form.serviceName}</h2>
+            </div>
+            <div className="mb-4">
+              <input
+                type="tel"
+                placeholder="Số điện thoại"
+                className="input"
+                value={form.phone}
+                onChange={e => handlePhoneChange(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Họ và tên"
+                className="input"
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+              />
+              <div>
+                <h3 className="text-sm font-semibold mt-2 mb-1 ml-1">Chọn ngày hẹn</h3>
+                <div className="flex gap-2 overflow-x-scroll py-2">
+                  {availableDates.map(d => (
+                    <button
+                    key={d.date}
+                    disabled={d.disabled}
+                    className={`button ${d.disabled ? 'disabled' : ''} whitespace-nowrap mr-2`}
+                    style={{
+                      background: d.disabled ? 'var(--secondaryColor)' : 'var(--surfaceColor)',
+                      color: 'var(--textColor)',
+                      border: d.disabled
+                        ? 'none'
+                        : d.date === bookingDate
+                          ? '2px solid var(--textColor)'        // nếu đang chọn
+                          : '2px solid var(--secondaryColor)',    // mặc định
+                    }}
+                    onClick={() => setBookingDate(d.date)}
+                  > {d.label} </button>
+                  ))}
+                </div>
+
+              </div>
+              <div>
+                {bookingDate && <h3 className="text-sm font-semibold mt-2 mb-1 ml-1">Chọn giờ hẹn</h3>}
+                <div className="grid grid-cols-3 gap-2 py-2">
+                  {availableTimes.map(t => (
+                    <button
+                      key={t.time}
+                      disabled={t.disabled}
+                      className={`button ${t.disabled ? 'disabled' : ''}`}
+                      style={{
+                        background: t.full ? '#FEE2E2' : 'var(--surfaceColor)',
+                        color: 'var(--textColor)',
+                        border: t.full
+                          ? 'none'
+                          : t.time === bookingTime
+                            ? '2px solid var(--textColor)'        // nếu đang chọn
+                            : '2px solid var(--secondaryColor)',    // mặc định
+                      }}
+                      onClick={() => handleTimeSlotClick(t)}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex space-x-2 justify-end">
+
+              <button
+                onClick={() => setShowBookingForm(false)}
+                className="button flex-1 min-h-48"
+                style={{ background: 'var(--secondaryColor)', color: 'var(--textColor)' }}
+              > Hủy </button>
+
+              <button
+                onClick={() => handleSubmitCustom(bookingDate, bookingTime)}
+                className="button flex-1 min-h-48"
+                disabled={!form.name || !form.phone || !bookingDate || !bookingTime || bookingLoading}
+                style={{
+                  background: (!form.name || !form.phone || !bookingDate || !bookingTime || bookingLoading)
+                    ? 'var(--secondaryColor)'
+                    : 'var(--primaryColor)',
+                  color: 'var(--onPrimaryColor)'
+                }}
+              > Đặt ngay </button>
+
+            </div>
+            {bookingLoading && (
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--borderRadius)'}}>
+                <div style={{ width: 24, height: 24, border: '3px solid var(--primaryColor)', borderRadius: '50%', borderTop: '3px solid transparent', animation: 'spin 1s linear infinite' }}></div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {submitted && (
+        <div className="modal">
+          <div className="modal-content text-center">
+            <div style={{ width: 64, height: 64, margin: '0 auto 16px auto', borderRadius: 32, background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width={32} height={32} style={{ color: '#059669' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold mb-2" style={{ color: '#059669' }}>Đặt lịch thành công!</h2>
+            <p className="mb-4">Chúng tôi sẽ liên hệ với bạn để xác nhận lịch hẹn.</p>
+            <button
+              onClick={() => setSubmitted(false)}
+              className="button w-full"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      )}
+      {snackMessage && (
+        <div className="snack">
+          <p>{snackMessage}</p>
+        </div>
+      )}
     </div>
   )
 }
