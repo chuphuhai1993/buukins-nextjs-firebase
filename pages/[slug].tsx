@@ -484,7 +484,7 @@ export default function BioPage() {
           />
         </div>
         <h1>{storeData.bio.storeName}</h1>
-        <p className="text-sm">{storeData.bio.bio}</p>
+        <p className="text-sm px-6">{storeData.bio.bio}</p>
       </div>
       <div className="card p-4 mb-3 overflow-hidden">
         <h2 className="text-sm font-semibold mb-2">Liên kết</h2>
@@ -494,7 +494,7 @@ export default function BioPage() {
             href={social.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="mr-2"
+            className="mr-2 text-sm"
             style={{ color: 'var(--highlightColor)' }}
           >
             {social.title}
@@ -506,15 +506,15 @@ export default function BioPage() {
         <p className="text-sm">{storeData.bio.intro}</p>
       </div>
       <div className="mt-4">
-        <h2 className="text-sm font-semibold px-4">Dịch vụ</h2>
+        <h2 className="text-sm font-semibold px-6">Dịch vụ</h2>
         {visibleServices.map(service => (
           <div key={service.id} className="card p-4">
-            <h3 className="text-md font-semibold mb-1">{service.name}</h3>
-            <p className="text-sm mb-6">{service.description}</p>
+            <h3 className="text-lg font-semibold mb-1">{service.name}</h3>
+            <p className="text-sm mb-8 text-gray">{service.description}</p>
             <div className="flex-between">
               <div>
-                <p className="font-semibold text-sm">{service.price.toLocaleString()}đ</p>
-                <p className="text-sm">{service.duration} phút</p>
+                <p className="font-semibold text-sm m-0 mb-1">{service.price.toLocaleString()}đ</p>
+                <p className="text-sm m-0 text-gray">{service.duration} phút</p>
               </div>
               <button
                 onClick={() => handleBookingClick(service)}
@@ -545,7 +545,7 @@ export default function BioPage() {
               />
               <input
                 type="text"
-                placeholder="Họ và tên"
+                placeholder="Tên đầy đủ"
                 className="input"
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
@@ -602,19 +602,24 @@ export default function BioPage() {
 
               <button
                 onClick={() => setShowBookingForm(false)}
-                className="button flex-1 min-h-48"
+                className="button flex-1 min-h-48 px-8"
                 style={{ background: 'var(--secondaryColor)', color: 'var(--textColor)' }}
               > Hủy </button>
 
               <button
                 onClick={() => handleSubmitCustom(bookingDate, bookingTime)}
-                className="button flex-1 min-h-48"
+                className="button flex-1 min-h-48 px-8"
                 disabled={!form.name || !form.phone || !bookingDate || !bookingTime || bookingLoading}
                 style={{
                   background: (!form.name || !form.phone || !bookingDate || !bookingTime || bookingLoading)
                     ? 'var(--secondaryColor)'
                     : 'var(--primaryColor)',
-                  color: 'var(--onPrimaryColor)'
+                  color: (!form.name || !form.phone || !bookingDate || !bookingTime || bookingLoading)
+                    ? 'var(--textColor)'
+                    : 'var(--onPrimaryColor)',
+                  opacity: (!form.name || !form.phone || !bookingDate || !bookingTime || bookingLoading)
+                    ? 0.5
+                    : 1,
                 }}
               > Đặt ngay </button>
 

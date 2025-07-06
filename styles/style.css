@@ -53,7 +53,7 @@ h3 { font-size: 15px; }
   color: var(--onPrimaryColor, #FFF);
   border: none;
   border-radius: var(--buttonRadius, 100px);
-  padding: 12px 20px;
+  padding: 12px 12px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -103,7 +103,8 @@ h3 { font-size: 15px; }
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  /* background: rgba(0,0,0,0.5); */
+  background: var(--backgroundColor, #F5F5F5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -155,6 +156,11 @@ h3 { font-size: 15px; }
 
 .text-center { text-align: center; }
 
+.font-semibold { font-weight: 600; }
+.text-gray { opacity: 0.65; }
+
+.m-0 { margin: 0; }
+
 .mt-1 { margin-top: 4px; }
 .mt-2 { margin-top: 8px; }
 .mt-3 { margin-top: 12px; }
@@ -179,6 +185,8 @@ h3 { font-size: 15px; }
 .p-4 { padding: 16px; }
 .px-4 { padding-left: 16px; padding-right: 16px; }
 .py-2 { padding-top: 8px; padding-bottom: 8px; }
+.px-6 { padding-left: 20px; padding-right: 20px; }
+.px-8 { padding-left: 24px; padding-right: 24px; }
 
 .pt-8 { padding-top: 24px; }
 .pb-4 { padding-bottom: 16px; }
