@@ -3,6 +3,30 @@ import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs
 import { db } from '../lib/firebase'
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs';
+// Thêm vào đầu file
+import { GetServerSideProps } from 'next';
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const host = context.req.headers.host || '';
+  let slug = '';
+
+  // Lấy slug từ subdomain
+  if (host.endsWith('.buukins.com')) {
+    slug = host.replace('.buukins.com', '').replace(/^www\./, '');
+  }
+
+  // Nếu muốn fallback về path cũ khi truy cập trực tiếp /[slug]
+  if (!slug && context.params?.slug) {
+    slug = context.params.slug as string;
+  }
+
+  // Truyền slug vào props
+  return {
+    props: {
+      slug,
+    },
+  };
+};
 
 interface Service {
   id: string;
@@ -32,9 +56,9 @@ interface StoreData {
   services: Service[];
 }
 
-export default function BioPage() {
+export default function BioPage({ slug }: { slug: string }) {
   const router = useRouter()
-  const { slug } = router.query
+  // const { slug } = router.query
   const [storeData, setStoreData] = useState<StoreData | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -488,47 +512,54 @@ export default function BioPage() {
       </div>
       <div className="card p-4 mb-3 overflow-hidden">
         <h2 className="text-sm font-semibold mb-2">Liên kết</h2>
-        {Object.entries(storeData.bio.socials).map(([id, social]) => (
-          <a
-            key={id}
-            href={social.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mr-2 text-sm"
-            style={{ color: 'var(--highlightColor)' }}
-          >
-            {social.title}
-          </a>
-        ))}
+        {Object.keys(storeData.bio.socials).length === 0 ? (
+          <div className="text-sm py-2 text-gray-500">Chưa có liên kết nào</div>
+        ) : (
+          Object.entries(storeData.bio.socials).map(([id, social]) => (
+            <a
+              key={id}
+              href={social.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mr-2 text-sm"
+              style={{ color: 'var(--highlightColor)' }}
+            >
+              {social.title}
+            </a>
+          ))
+        )}
       </div>
       <div className="card p-4 mb-8">
         <h2 className="text-sm font-semibold mb-2">Giới thiệu</h2>
-        <p className="text-sm">{storeData.bio.intro}</p>
-      </div>
-      <div className="mt-4">
-        <h2 className="text-sm font-semibold px-6">Dịch vụ</h2>
-        {visibleServices.map(service => (
-          <div key={service.id} className="card p-4">
-            <h3 className="text-lg font-semibold mb-1">{service.name}</h3>
-            <p className="text-sm mb-8 text-gray">{service.description}</p>
-            <div className="flex-between">
-              <div>
-                <p className="font-semibold text-sm m-0 mb-1">{service.price.toLocaleString()}đ</p>
-                <p className="text-sm m-0 text-gray">{service.duration} phút</p>
-              </div>
-              <button
-                onClick={() => handleBookingClick(service)}
-                className="button"
-              >
-                Đặt lịch
-              </button>
-            </div>
-          </div>
-        ))}
-        {visibleServices.length === 0 && (
-          <div className="text-center py-8">Chưa có dịch vụ nào được hiển thị.</div>
+        {storeData.bio.intro && storeData.bio.intro.trim() !== '' ? (
+          <p className="m-0 text-sm">{storeData.bio.intro}</p>
+        ) : (
+          <div className="text-sm py-2 text-gray-500">Chưa có mô tả nào</div>
         )}
       </div>
+      {visibleServices.length > 0 && (
+        <div className="mt-4">
+          <h2 className="text-sm font-semibold px-6">Dịch vụ</h2>
+          {visibleServices.map(service => (
+            <div key={service.id} className="card p-4">
+              <h3 className="text-lg font-semibold mb-1">{service.name}</h3>
+              <p className="text-sm mb-8 text-gray">{service.description}</p>
+              <div className="flex-between">
+                <div>
+                  <p className="font-semibold text-sm m-0 mb-1">{service.price.toLocaleString()}đ</p>
+                  <p className="text-sm m-0 text-gray">{service.duration} phút</p>
+                </div>
+                <button
+                  onClick={() => handleBookingClick(service)}
+                  className="button"
+                >
+                  Đặt lịch
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       {showBookingForm && !submitted && (
         <div className="modal">
           <div className="modal-content card">

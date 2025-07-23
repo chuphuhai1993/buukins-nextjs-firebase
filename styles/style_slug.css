@@ -44,9 +44,9 @@ h1 { font-size: 20px; }
 h2 { font-size: 16px; }
 h3 { font-size: 15px; }
 
-.text-sm { font-size: 14px; }
-.text-md { font-size: 15px; }
-.text-lg { font-size: 18px; }
+.text-sm { font-size: 14px; line-height: 1.5;}
+.text-md { font-size: 15px; line-height: 1.5;}
+.text-lg { font-size: 18px; line-height: 1.5;}
 
 .button {
   background: var(--primaryColor, #2563EC);
