@@ -1,32 +1,9 @@
+import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router'
 import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs';
-// Thêm vào đầu file
-import { GetServerSideProps } from 'next';
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const host = context.req.headers.host || '';
-  let slug = '';
-
-  // Lấy slug từ subdomain
-  if (host.endsWith('.buukins.com')) {
-    slug = host.replace('.buukins.com', '').replace(/^www\./, '');
-  }
-
-  // Nếu muốn fallback về path cũ khi truy cập trực tiếp /[slug]
-  if (!slug && context.params?.slug) {
-    slug = context.params.slug as string;
-  }
-
-  // Truyền slug vào props
-  return {
-    props: {
-      slug,
-    },
-  };
-};
 
 interface Service {
   id: string;
@@ -56,9 +33,42 @@ interface StoreData {
   services: Service[];
 }
 
-export default function BioPage({ slug }: { slug: string }) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const host = context.req.headers.host || '';
+  let slug = context.params?.slug as string | undefined;
+
+  if (host.endsWith('.buukins.com') || host.endsWith('.localhost:3000') || host.endsWith('.localhost')) {
+    let base = host.endsWith('.localhost:3000') ? '.localhost:3000' : host.endsWith('.localhost') ? '.localhost' : '.buukins.com';
+    const parts = host.replace(base, '').split('.');
+    const subdomainSlug = parts.length === 2 ? parts[1] : parts[0];
+    if (subdomainSlug && subdomainSlug !== 'www') {
+      slug = subdomainSlug;
+    }
+  }
+  // Nếu truy cập qua buukins.com/[slug], redirect sang subdomain
+  if (
+    host.startsWith('buukins.com') &&
+    slug
+  ) {
+    return {
+      redirect: {
+        destination: `https://${slug}.buukins.com`,
+        permanent: true,
+      },
+    };
+  }
+  if (!slug) {
+    return { notFound: true };
+  }
+  // Truyền slug xuống props để component dùng fetch data như cũ
+  return {
+    props: { slug }
+  };
+};
+
+export default function BioPage(props: { slug: string }) {
+  const { slug } = props;
   const router = useRouter()
-  // const { slug } = router.query
   const [storeData, setStoreData] = useState<StoreData | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
