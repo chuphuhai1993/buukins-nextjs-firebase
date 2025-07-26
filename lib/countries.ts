@@ -15,6 +15,8 @@ export interface CountryConfig {
   locale: string;
   dateFormat: string;
   timeFormat: string;
+  dialCode: string;
+  flag: string;
 }
 
 export const countries: Record<Country, CountryConfig> = {
@@ -24,7 +26,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'USD', symbol: '$', position: 'before' },
     locale: 'en-US',
     dateFormat: 'MM/DD/YYYY',
-    timeFormat: 'h:mm A'
+    timeFormat: 'h:mm A',
+    dialCode: '+1',
+    flag: '🇺🇸'
   },
   CN: {
     code: 'CN',
@@ -32,7 +36,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'CNY', symbol: '¥', position: 'before' },
     locale: 'zh-CN',
     dateFormat: 'YYYY-MM-DD',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+86',
+    flag: '🇨🇳'
   },
   DE: {
     code: 'DE',
@@ -40,7 +46,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EUR', symbol: '€', position: 'before' },
     locale: 'de-DE',
     dateFormat: 'DD.MM.YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+49',
+    flag: '🇩🇪'
   },
   JP: {
     code: 'JP',
@@ -48,7 +56,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'JPY', symbol: '¥', position: 'before' },
     locale: 'ja-JP',
     dateFormat: 'YYYY/MM/DD',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+81',
+    flag: '🇯🇵'
   },
   IN: {
     code: 'IN',
@@ -56,7 +66,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'INR', symbol: '₹', position: 'before' },
     locale: 'en-IN',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'h:mm A'
+    timeFormat: 'h:mm A',
+    dialCode: '+91',
+    flag: '🇮🇳'
   },
   GB: {
     code: 'GB',
@@ -64,7 +76,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'GBP', symbol: '£', position: 'before' },
     locale: 'en-GB',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+44',
+    flag: '🇬🇧'
   },
   FR: {
     code: 'FR',
@@ -72,7 +86,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EUR', symbol: '€', position: 'before' },
     locale: 'fr-FR',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+33',
+    flag: '🇫🇷'
   },
   CA: {
     code: 'CA',
@@ -80,7 +96,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'CAD', symbol: 'C$', position: 'before' },
     locale: 'en-CA',
     dateFormat: 'YYYY-MM-DD',
-    timeFormat: 'h:mm A'
+    timeFormat: 'h:mm A',
+    dialCode: '+1',
+    flag: '🇨🇦'
   },
   AU: {
     code: 'AU',
@@ -88,7 +106,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'AUD', symbol: 'A$', position: 'before' },
     locale: 'en-AU',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'h:mm A'
+    timeFormat: 'h:mm A',
+    dialCode: '+61',
+    flag: '🇦🇺'
   },
   KR: {
     code: 'KR',
@@ -96,7 +116,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'KRW', symbol: '₩', position: 'before' },
     locale: 'ko-KR',
     dateFormat: 'YYYY-MM-DD',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+82',
+    flag: '🇰🇷'
   },
   BR: {
     code: 'BR',
@@ -104,7 +126,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'BRL', symbol: 'R$', position: 'before' },
     locale: 'pt-BR',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+55',
+    flag: '🇧🇷'
   },
   ES: {
     code: 'ES',
@@ -112,7 +136,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EUR', symbol: '€', position: 'before' },
     locale: 'es-ES',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+34',
+    flag: '🇪🇸'
   },
   IT: {
     code: 'IT',
@@ -120,7 +146,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EUR', symbol: '€', position: 'before' },
     locale: 'it-IT',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+39',
+    flag: '🇮🇹'
   },
   TR: {
     code: 'TR',
@@ -128,7 +156,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'TRY', symbol: '₺', position: 'before' },
     locale: 'tr-TR',
     dateFormat: 'DD.MM.YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+90',
+    flag: '🇹🇷'
   },
   MX: {
     code: 'MX',
@@ -136,7 +166,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'MXN', symbol: '$', position: 'before' },
     locale: 'es-MX',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+52',
+    flag: '🇲🇽'
   },
   TH: {
     code: 'TH',
@@ -144,7 +176,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'THB', symbol: '฿', position: 'before' },
     locale: 'th-TH',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+66',
+    flag: '🇹🇭'
   },
   VN: {
     code: 'VN',
@@ -152,7 +186,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'VND', symbol: '₫', position: 'after' },
     locale: 'vi-VN',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+84',
+    flag: '🇻🇳'
   },
   SG: {
     code: 'SG',
@@ -160,7 +196,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'SGD', symbol: 'S$', position: 'before' },
     locale: 'en-SG',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+65',
+    flag: '🇸🇬'
   },
   AE: {
     code: 'AE',
@@ -168,7 +206,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'AED', symbol: 'د.إ', position: 'before' },
     locale: 'ar-AE',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+971',
+    flag: '🇦🇪'
   },
   CH: {
     code: 'CH',
@@ -176,7 +216,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'CHF', symbol: 'CHF', position: 'before' },
     locale: 'de-CH',
     dateFormat: 'DD.MM.YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+41',
+    flag: '🇨🇭'
   },
   PT: {
     code: 'PT',
@@ -184,7 +226,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EUR', symbol: '€', position: 'before' },
     locale: 'pt-PT',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+351',
+    flag: '🇵🇹'
   },
   ID: {
     code: 'ID',
@@ -192,7 +236,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'IDR', symbol: 'Rp', position: 'before' },
     locale: 'id-ID',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+62',
+    flag: '🇮🇩'
   },
   NL: {
     code: 'NL',
@@ -200,7 +246,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EUR', symbol: '€', position: 'before' },
     locale: 'nl-NL',
     dateFormat: 'DD-MM-YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+31',
+    flag: '🇳🇱'
   },
   SE: {
     code: 'SE',
@@ -208,7 +256,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'SEK', symbol: 'kr', position: 'after' },
     locale: 'sv-SE',
     dateFormat: 'YYYY-MM-DD',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+46',
+    flag: '🇸🇪'
   },
   NO: {
     code: 'NO',
@@ -216,7 +266,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'NOK', symbol: 'kr', position: 'after' },
     locale: 'nb-NO',
     dateFormat: 'DD.MM.YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+47',
+    flag: '🇳🇴'
   },
   DK: {
     code: 'DK',
@@ -224,7 +276,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'DKK', symbol: 'kr', position: 'after' },
     locale: 'da-DK',
     dateFormat: 'DD.MM.YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+45',
+    flag: '🇩🇰'
   },
   AT: {
     code: 'AT',
@@ -232,7 +286,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EUR', symbol: '€', position: 'before' },
     locale: 'de-AT',
     dateFormat: 'DD.MM.YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+43',
+    flag: '🇦🇹'
   },
   BE: {
     code: 'BE',
@@ -240,7 +296,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EUR', symbol: '€', position: 'before' },
     locale: 'nl-BE',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+32',
+    flag: '🇧🇪'
   },
   AR: {
     code: 'AR',
@@ -248,7 +306,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'ARS', symbol: '$', position: 'before' },
     locale: 'es-AR',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+54',
+    flag: '🇦🇷'
   },
   EG: {
     code: 'EG',
@@ -256,7 +316,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'EGP', symbol: 'E£', position: 'before' },
     locale: 'ar-EG',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+20',
+    flag: '🇪🇬'
   },
   RU: {
     code: 'RU',
@@ -264,7 +326,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'RUB', symbol: '₽', position: 'after' },
     locale: 'ru-RU',
     dateFormat: 'DD.MM.YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+7',
+    flag: '🇷🇺'
   },
   ZA: {
     code: 'ZA',
@@ -272,7 +336,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'ZAR', symbol: 'R', position: 'before' },
     locale: 'en-ZA',
     dateFormat: 'YYYY/MM/DD',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+27',
+    flag: '🇿🇦'
   },
   ET: {
     code: 'ET',
@@ -280,7 +346,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'ETB', symbol: 'Br', position: 'before' },
     locale: 'am-ET',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+251',
+    flag: '🇪🇹'
   },
   IR: {
     code: 'IR',
@@ -288,7 +356,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'IRR', symbol: '﷼', position: 'after' },
     locale: 'fa-IR',
     dateFormat: 'YYYY/MM/DD',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+98',
+    flag: '🇮🇷'
   },
   SA: {
     code: 'SA',
@@ -296,7 +366,9 @@ export const countries: Record<Country, CountryConfig> = {
     currency: { code: 'SAR', symbol: 'ر.س', position: 'before' },
     locale: 'ar-SA',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: 'HH:mm'
+    timeFormat: 'HH:mm',
+    dialCode: '+966',
+    flag: '🇸🇦'
   }
 };
 

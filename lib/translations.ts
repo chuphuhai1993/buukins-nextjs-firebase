@@ -37,6 +37,9 @@ export const translations = {
     errorLoadingStore: 'خطأ في تحميل بيانات المتجر',
     returnToHome: 'العودة إلى الصفحة الرئيسية',
     
+    // Customer
+    existingCustomer: 'عميل موجود',
+    
     // Days of week
     sunday: 'الأحد',
     monday: 'الاثنين',
@@ -83,6 +86,9 @@ export const translations = {
     errorLoadingStore: 'Error loading store data',
     returnToHome: 'Return to Home',
     
+    // Customer
+    existingCustomer: 'Existing Customer',
+    
     // Days of week
     sunday: 'Sunday',
     monday: 'Monday',
@@ -119,6 +125,9 @@ export const translations = {
     storeNotFound: 'Loja não encontrada',
     errorLoadingStore: 'Erro ao carregar dados da loja',
     returnToHome: 'Voltar ao Início',
+    
+    // Customer
+    existingCustomer: 'Cliente Existente',
     
     // Days of week
     sunday: 'Domingo',
@@ -157,6 +166,9 @@ export const translations = {
     errorLoadingStore: 'Fehler beim Laden der Geschäftsdaten',
     returnToHome: 'Zurück zur Startseite',
     
+    // Customer
+    existingCustomer: 'Bestehender Kunde',
+    
     // Days of week
     sunday: 'Sonntag',
     monday: 'Montag',
@@ -193,6 +205,9 @@ export const translations = {
     storeNotFound: 'स्टोर नहीं मिला',
     errorLoadingStore: 'स्टोर डेटा लोड करने में त्रुटि',
     returnToHome: 'होम पर वापस जाएं',
+    
+    // Customer
+    existingCustomer: 'मوجود ग्राहक',
     
     // Days of week
     sunday: 'रविवार',
@@ -231,6 +246,9 @@ export const translations = {
     errorLoadingStore: '매장 데이터 로딩 오류',
     returnToHome: '홈으로 돌아가기',
     
+    // Customer
+    existingCustomer: '기존 고객',
+    
     // Days of week
     sunday: '일요일',
     monday: '월요일',
@@ -267,6 +285,9 @@ export const translations = {
     storeNotFound: 'Toko tidak ditemukan',
     errorLoadingStore: 'Error memuat data toko',
     returnToHome: 'Kembali ke Beranda',
+    
+    // Customer
+    existingCustomer: 'Pelanggan yang ada',
     
     // Days of week
     sunday: 'Minggu',
@@ -305,6 +326,9 @@ export const translations = {
     errorLoadingStore: '店舗データの読み込みエラー',
     returnToHome: 'ホームに戻る',
     
+    // Customer
+    existingCustomer: '既存の顧客',
+    
     // Days of week
     sunday: '日曜日',
     monday: '月曜日',
@@ -341,6 +365,9 @@ export const translations = {
     storeNotFound: 'Magasin introuvable',
     errorLoadingStore: 'Erreur lors du chargement des données du magasin',
     returnToHome: 'Retour à l\'Accueil',
+    
+    // Customer
+    existingCustomer: 'Client existant',
     
     // Days of week
     sunday: 'Dimanche',
@@ -379,6 +406,9 @@ export const translations = {
     errorLoadingStore: 'Error al cargar datos de la tienda',
     returnToHome: 'Volver al Inicio',
     
+    // Customer
+    existingCustomer: 'Cliente existente',
+    
     // Days of week
     sunday: 'Domingo',
     monday: 'Lunes',
@@ -415,6 +445,9 @@ export const translations = {
     storeNotFound: 'ไม่พบร้านค้า',
     errorLoadingStore: 'เกิดข้อผิดพลาดในการโหลดข้อมูลร้านค้า',
     returnToHome: 'กลับหน้าหลัก',
+    
+    // Customer
+    existingCustomer: 'ลูกค้าที่มีอยู่',
     
     // Days of week
     sunday: 'วันอาทิตย์',
@@ -453,6 +486,9 @@ export const translations = {
     errorLoadingStore: '加载商店数据时出错',
     returnToHome: '返回首页',
     
+    // Customer
+    existingCustomer: '现有客户',
+    
     // Days of week
     sunday: '星期日',
     monday: '星期一',
@@ -489,6 +525,9 @@ export const translations = {
     storeNotFound: 'Store not found',
     errorLoadingStore: 'Error loading store data',
     returnToHome: 'Return to Home',
+    
+    // Customer
+    existingCustomer: 'Khách hàng hiện có',
     
     // Days of week
     sunday: 'Chủ nhật',

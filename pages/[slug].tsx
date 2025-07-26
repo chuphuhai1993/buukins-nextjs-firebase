@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo } from 'react'
 import dayjs from 'dayjs';
 import { useTranslation, Language } from '../lib/useTranslation';
 import { useCountry, Country } from '../lib/useCountry';
-import { getCountryConfig } from '../lib/countries';
+import { getCountryConfig, countries } from '../lib/countries';
 
 interface Service {
   id: string;
@@ -86,6 +86,9 @@ export default function BioPage(props: { slug: string }) {
     serviceId: '',
     serviceName: ''
   })
+  const [selectedCountryCode, setSelectedCountryCode] = useState<Country>('VN');
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [checkingCustomer, setCheckingCustomer] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [workingHours, setWorkingHours] = useState<any>(null);
@@ -99,6 +102,25 @@ export default function BioPage(props: { slug: string }) {
   const [themeData, setThemeData] = useState<any>(null);
   const [isExistingCustomer, setIsExistingCustomer] = useState(false);
 
+  // Đóng dropdown khi click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.country-code-dropdown')) {
+        setShowCountryDropdown(false);
+      }
+    };
+
+    if (showCountryDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCountryDropdown]);
+
+  // Fetch data khi component mount
   useEffect(() => {
     if (!slug) return;
     
@@ -314,6 +336,306 @@ export default function BioPage(props: { slug: string }) {
     fetchBookings();
   }, [bookingDate, form.serviceId, userId, workingHours]);
 
+  // Function để lấy số điện thoại đầy đủ với mã quốc gia
+  const getFullPhoneNumber = (): string => {
+    const countryConfig = getCountryConfig(selectedCountryCode);
+    const normalizedPhone = normalizePhoneNumber(form.phone, selectedCountryCode);
+    return countryConfig.dialCode + normalizedPhone;
+  };
+
+  // Normalize số điện thoại theo từng quốc gia
+  const normalizePhoneNumber = (input: string, countryCode: Country): string => {
+    // Loại bỏ tất cả ký tự không phải số
+    let digits = input.replace(/\D/g, '');
+    
+    const countryConfig = getCountryConfig(countryCode);
+    const dialCode = countryConfig.dialCode.replace('+', '');
+    
+    // Xử lý theo từng quốc gia
+    switch (countryCode) {
+      case 'VN':
+        // VN: +84
+        if (digits.startsWith('84')) {
+          // Đã có mã quốc gia, loại bỏ
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          // Có số 0 đầu, loại bỏ
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'US':
+      case 'CA':
+        // US/CA: +1
+        if (digits.startsWith('1') && digits.length === 11) {
+          // Đã có mã quốc gia, loại bỏ
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'GB':
+        // GB: +44
+        if (digits.startsWith('44')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'DE':
+        // DE: +49
+        if (digits.startsWith('49')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'FR':
+        // FR: +33
+        if (digits.startsWith('33')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'JP':
+        // JP: +81
+        if (digits.startsWith('81')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'KR':
+        // KR: +82
+        if (digits.startsWith('82')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'CN':
+        // CN: +86
+        if (digits.startsWith('86')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'IN':
+        // IN: +91
+        if (digits.startsWith('91')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'AU':
+        // AU: +61
+        if (digits.startsWith('61')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'BR':
+        // BR: +55
+        if (digits.startsWith('55')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'ES':
+        // ES: +34
+        if (digits.startsWith('34')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'IT':
+        // IT: +39
+        if (digits.startsWith('39')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'TR':
+        // TR: +90
+        if (digits.startsWith('90')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'MX':
+        // MX: +52
+        if (digits.startsWith('52')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'TH':
+        // TH: +66
+        if (digits.startsWith('66')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'SG':
+        // SG: +65
+        if (digits.startsWith('65')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'AE':
+        // AE: +971
+        if (digits.startsWith('971')) {
+          digits = digits.substring(3);
+        }
+        break;
+        
+      case 'CH':
+        // CH: +41
+        if (digits.startsWith('41')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'PT':
+        // PT: +351
+        if (digits.startsWith('351')) {
+          digits = digits.substring(3);
+        }
+        break;
+        
+      case 'ID':
+        // ID: +62
+        if (digits.startsWith('62')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'NL':
+        // NL: +31
+        if (digits.startsWith('31')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'SE':
+        // SE: +46
+        if (digits.startsWith('46')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'NO':
+        // NO: +47
+        if (digits.startsWith('47')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'DK':
+        // DK: +45
+        if (digits.startsWith('45')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'AT':
+        // AT: +43
+        if (digits.startsWith('43')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'BE':
+        // BE: +32
+        if (digits.startsWith('32')) {
+          digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'AR':
+        // AR: +54
+        if (digits.startsWith('54')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'EG':
+        // EG: +20
+        if (digits.startsWith('20')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'RU':
+        // RU: +7
+        if (digits.startsWith('7')) {
+          digits = digits.substring(1);
+        }
+        break;
+        
+      case 'ZA':
+        // ZA: +27
+        if (digits.startsWith('27')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'ET':
+        // ET: +251
+        if (digits.startsWith('251')) {
+          digits = digits.substring(3);
+        }
+        break;
+        
+      case 'IR':
+        // IR: +98
+        if (digits.startsWith('98')) {
+          digits = digits.substring(2);
+        }
+        break;
+        
+      case 'SA':
+        // SA: +966
+        if (digits.startsWith('966')) {
+          digits = digits.substring(3);
+        }
+        break;
+        
+      default:
+        // Mặc định: loại bỏ số 0 đầu nếu có
+        if (digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        break;
+    }
+    
+    return digits;
+  };
+
   // Tính toán available times với useMemo
   const availableTimes = useMemo(() => {
     if (!bookingDate || !form.serviceId || !workingHours || !storeData) return [];
@@ -359,7 +681,7 @@ export default function BioPage(props: { slug: string }) {
       for (const interval of bookingIntervals) {
         if (blockStart.isBefore(interval.bEnd) && interval.bStart.isBefore(blockEnd)) {
           overlapCount++;
-          if (interval.phone === form.phone) {
+          if (interval.phone === getFullPhoneNumber()) {
             bookedByMe = true;
           }
         }
@@ -402,42 +724,67 @@ export default function BioPage(props: { slug: string }) {
     setBookingTime(timeSlot.time);
   }
 
-  // Hàm chuẩn hóa số điện thoại về E.164 cho Việt Nam
-  function normalizePhoneVN(input: string): string {
-    let phone = input.replace(/\D/g, '');
-    if (phone.startsWith('84')) phone = '+' + phone;
-    else if (phone.startsWith('0')) phone = '+84' + phone.slice(1);
-    else if (phone.startsWith('0084')) phone = '+84' + phone.slice(4);
-    else if (phone.startsWith('+84')) phone = phone;
-    else if (phone.length === 9) phone = '+84' + phone;
-    else if (phone.startsWith('1') && phone.length === 10) phone = '+84' + phone;
-    else phone = '+' + phone;
-    return phone;
-  }
-
-  // Khi nhập SĐT, chuẩn hóa và tìm customer
+  // Khi nhập SĐT, giữ nguyên input của user
   const handlePhoneChange = async (val: string) => {
-    const normalized = normalizePhoneVN(val);
-    setForm(f => ({ ...f, phone: normalized }));
-    if (normalized.length < 10 || !userId) return;
-    // Query customer theo phone và userId
-    const q = query(
-      collection(db, 'customers'), 
-      where('phone', '==', normalized),
-      where('userId', '==', userId)
-    );
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      const doc = snap.docs[0];
-      setCustomerDocId(doc.id);
-      const data = doc.data() as any;
-      setForm(f => ({ ...f, name: data.fullName || '' }));
-      setIsExistingCustomer(true);
-    } else {
-      setCustomerDocId(null);
-      setForm(f => ({ ...f, name: '' }));
-      setIsExistingCustomer(false);
+    console.log('📝 handlePhoneChange - input:', val);
+    setForm(f => ({ ...f, phone: val }));
+  };
+
+  // Check customer khi blur input (ấn ra ngoài)
+  const handlePhoneBlur = async () => {
+    console.log('🔍 handlePhoneBlur triggered');
+    console.log('📱 form.phone:', form.phone);
+    console.log('🌍 selectedCountryCode:', selectedCountryCode);
+    console.log('👤 userId:', userId);
+    
+    if (form.phone.length < 4 || !userId) {
+      console.log('❌ Early return - phone too short or no userId');
+      return;
     }
+    
+    setCheckingCustomer(true);
+    try {
+      // Normalize số điện thoại trước khi check
+      const normalizedPhone = normalizePhoneNumber(form.phone, selectedCountryCode);
+      console.log('📱 normalizedPhone:', normalizedPhone);
+      
+      // Sử dụng số điện thoại đầy đủ với mã quốc gia
+      const fullPhoneNumber = getCountryConfig(selectedCountryCode).dialCode + normalizedPhone;
+      console.log('📞 fullPhoneNumber:', fullPhoneNumber);
+      
+      const q = query(
+        collection(db, 'customers'),
+        where('phone', '==', fullPhoneNumber),
+        where('userId', '==', userId)
+      );
+      console.log('🔍 Querying customers with:', { phone: fullPhoneNumber, userId });
+      
+      const snap = await getDocs(q);
+      console.log('📊 Query result - empty:', snap.empty, 'size:', snap.size);
+      
+      if (!snap.empty) {
+        const doc = snap.docs[0];
+        const data = doc.data() as any;
+        console.log('✅ Customer found:', data);
+        setCustomerDocId(doc.id);
+        setForm(f => ({ ...f, name: data.fullName || '' }));
+        setIsExistingCustomer(true);
+      } else {
+        console.log('❌ No customer found');
+        setCustomerDocId(null);
+        setForm(f => ({ ...f, name: '' }));
+        setIsExistingCustomer(false);
+      }
+    } catch (error) {
+      console.error('💥 Error checking customer:', error);
+    } finally {
+      setCheckingCustomer(false);
+    }
+  };
+
+  const handleCountryCodeSelect = (countryCode: Country) => {
+    setSelectedCountryCode(countryCode);
+    setShowCountryDropdown(false);
   };
 
   const handleSubmitCustom = async (date: string, time: string) => {
@@ -446,11 +793,11 @@ export default function BioPage(props: { slug: string }) {
     try {
       console.log('Starting booking creation...');
       
-      // Kiểm tra customer theo số điện thoại và userId
+      // Check customer by phone and userId
       console.log('Checking customer...');
       const customerQuery = query(
-        collection(db, 'customers'), 
-        where('phone', '==', form.phone),
+        collection(db, 'customers'),
+        where('phone', '==', getFullPhoneNumber()),
         where('userId', '==', userId)
       );
       const customerSnap = await getDocs(customerQuery);
@@ -467,7 +814,7 @@ export default function BioPage(props: { slug: string }) {
         customerRef = await addDoc(collection(db, 'customers'), {
           userId: userId,
           fullName: form.name,
-          phone: form.phone,
+          phone: getFullPhoneNumber(),
           createdAt: serverTimestamp()
         });
       }
@@ -501,7 +848,7 @@ export default function BioPage(props: { slug: string }) {
         if (blockStart.isBefore(interval.bEnd) && interval.bStart.isBefore(blockEnd)) {
           overlapCount++;
           // Kiểm tra xem số điện thoại hiện tại đã book slot này chưa
-          if (interval.phone === form.phone) {
+          if (interval.phone === getFullPhoneNumber()) {
             alreadyBookedByMe = true;
           }
         }
@@ -526,7 +873,7 @@ export default function BioPage(props: { slug: string }) {
         userId: userId,
         customerId: customerRef.id,
         fullName: form.name,
-        phone: form.phone,
+        phone: getFullPhoneNumber(),
         serviceId: form.serviceId,
         serviceName: form.serviceName,
         date,
@@ -669,13 +1016,45 @@ export default function BioPage(props: { slug: string }) {
             </div>
             <div className="mb-4">
               <div className="px-3">
-                <input
-                  type="tel"
-                  placeholder={t('phoneNumber')}
-                  className="input"
-                  value={form.phone}
-                  onChange={e => handlePhoneChange(e.target.value)}
-                />
+                <div className="phone-input-container">
+                  <div className="country-code-dropdown">
+                    <button
+                      type="button"
+                      className={`country-code-button ${showCountryDropdown ? 'open' : ''}`}
+                      onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                    >
+                      <span className="flag">{getCountryConfig(selectedCountryCode).flag}</span>
+                      <span className="dial-code">{getCountryConfig(selectedCountryCode).dialCode}</span>
+                      <span className="arrow">▼</span>
+                    </button>
+                    <div className={`country-dropdown-menu ${showCountryDropdown ? 'open' : ''}`}>
+                      {Object.values(countries).map((country) => (
+                        <button
+                          key={country.code}
+                          className="country-option"
+                          onClick={() => handleCountryCodeSelect(country.code)}
+                        >
+                          <span className="flag">{country.flag}</span>
+                          <span className="dial-code">{country.dialCode}</span>
+                          <span className="name">{country.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <input
+                    type="tel"
+                    placeholder={t('phoneNumber')}
+                    className="phone-number-input"
+                    value={form.phone}
+                    onChange={e => handlePhoneChange(e.target.value)}
+                    onBlur={handlePhoneBlur}
+                  />
+                  {checkingCustomer && (
+                    <div className="checking-indicator">
+                      <div className="spinner"></div>
+                    </div>
+                  )}
+                </div>
                 <input
                   type="text"
                   placeholder={t('fullName')}
@@ -683,48 +1062,52 @@ export default function BioPage(props: { slug: string }) {
                   value={form.name}
                   onChange={e => setForm({ ...form, name: e.target.value })}
                   disabled={isExistingCustomer}
-                />  
+                />
+                {isExistingCustomer && (
+                  <div className="existing-customer-notice">
+                    <span className="notice-text">✓ {t('existingCustomer')}</span>
+                  </div>
+                )}
               </div>
               <div>
                 <h3 className="text-sm font-semibold mt-2 mb-0 ml-1 px-3">{t('selectDate')}</h3>
                 <div className="date-grid">
-              {availableDates.map((date, index) => (
-                <button
-                  key={index}
-                  onClick={() => setBookingDate(date.date)}
-                  className={`date-button ${date.disabled ? 'disabled' : ''} ${bookingDate === date.date ? 'selected' : ''} ${index === 0 ? 'ml-4' : ''} ${index === availableDates.length - 1 ? 'mr-3' : ''}`}
-                  disabled={date.disabled}
-                >
-                  {date.label}
-                </button>
-              ))}
-            </div>
-
+                  {availableDates.map((date, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setBookingDate(date.date)}
+                      className={`date-button ${date.disabled ? 'disabled' : ''} ${bookingDate === date.date ? 'selected' : ''} ${index === 0 ? 'ml-4' : ''} ${index === availableDates.length - 1 ? 'mr-3' : ''}`}
+                      disabled={date.disabled}
+                    >
+                      {date.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="px-3">
                 {bookingDate && <h3 className="text-sm font-semibold mt-2 mb-0 ml-1">{t('selectTime')}</h3>}
                 <div className="time-grid">
-              {availableTimes.map((t, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleTimeSlotClick(t)}
-                  className={`time-button ${t.disabled ? 'disabled' : ''} ${bookingTime === t.time ? 'selected' : ''} ${t.bookedByMe ? 'booked-by-me' : ''} ${t.full ? 'full' : ''}`}
-                  disabled={t.disabled}
-                >
-                  {t.bookedByMe ? t.label : t.full ? t.label : formatTime(`${bookingDate} ${t.time}`)}
-                </button>
-              ))}
-            </div>
+                  {availableTimes.map((t, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleTimeSlotClick(t)}
+                      className={`time-button ${t.disabled ? 'disabled' : ''} ${bookingTime === t.time ? 'selected' : ''} ${t.bookedByMe ? 'booked-by-me' : ''} ${t.full ? 'full' : ''}`}
+                      disabled={t.disabled}
+                    >
+                      {t.bookedByMe ? t.label : t.full ? t.label : formatTime(`${bookingDate} ${t.time}`)}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="flex space-x-2 justify-end px-3">
-
               <button
                 onClick={() => setShowBookingForm(false)}
                 className="button flex-1 min-h-48 px-8"
                 style={{ background: 'var(--secondaryColor)', color: 'var(--textColor)' }}
-              > {t('cancel')} </button>
-
+              > 
+                {t('cancel')} 
+              </button>
               <button
                 onClick={() => handleSubmitCustom(bookingDate, bookingTime)}
                 className="button flex-1 min-h-48 px-8"
@@ -740,8 +1123,9 @@ export default function BioPage(props: { slug: string }) {
                     ? 0.5
                     : 1,
                 }}
-              > {t('bookNow')} </button>
-
+              > 
+                {t('bookNow')} 
+              </button>
             </div>
             {bookingLoading && (
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--borderRadius)'}}>
