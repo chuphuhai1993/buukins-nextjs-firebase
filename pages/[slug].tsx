@@ -86,13 +86,14 @@ export default function BioPage(props: { slug: string }) {
   const [workingHours, setWorkingHours] = useState<any>(null);
   const [bookingDate, setBookingDate] = useState<string>('');
   const [bookingTime, setBookingTime] = useState<string>('');
-  const [availableTimes, setAvailableTimes] = useState<{time: string, label: string, disabled: boolean, full: boolean}[]>([]);
+  const [availableTimes, setAvailableTimes] = useState<{time: string, label: string, disabled: boolean, full: boolean, bookedByMe: boolean}[]>([]);
   const [availableDates, setAvailableDates] = useState<{date: string, label: string, disabled: boolean}[]>([]);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingsOfDay, setBookingsOfDay] = useState<any[]>([]);
   const [customerDocId, setCustomerDocId] = useState<string | null>(null);
   const [snackMessage, setSnackMessage] = useState<string>('');
   const [themeData, setThemeData] = useState<any>(null);
+  const [isExistingCustomer, setIsExistingCustomer] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -195,18 +196,37 @@ export default function BioPage(props: { slug: string }) {
     const fetchWorkingTimes = async () => {
       setBookingLoading(true);
       try {
-        const ref = doc(db, 'users', userId, 'settings', 'working_times');
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          const data = snap.data();
-          setWorkingHours({
-            start: data.workingHours?.start,
-            end: data.workingHours?.end,
-            days: data.workingDays || [],
-            slots: data.workingSlots || 1,
-          });
+        // Fetch từ store_settings thay vì working_times
+        const storeSettingsRef = doc(db, 'users', userId, 'settings', 'store_settings');
+        const workingTimesRef = doc(db, 'users', userId, 'settings', 'working_times');
+        
+        const [storeSettingsSnap, workingTimesSnap] = await Promise.all([
+          getDoc(storeSettingsRef),
+          getDoc(workingTimesRef)
+        ]);
+        
+        let workingSlots = 1; // default
+        let workingHours = null;
+        let workingDays = [];
+        
+        if (storeSettingsSnap.exists()) {
+          const storeData = storeSettingsSnap.data();
+          workingSlots = storeData.workingSlots || 1;
         }
+        
+        if (workingTimesSnap.exists()) {
+          const workingData = workingTimesSnap.data();
+          workingHours = {
+            start: workingData.workingHours?.start,
+            end: workingData.workingHours?.end,
+            days: workingData.workingDays || [],
+            slots: workingSlots, // Sử dụng workingSlots từ store_settings
+          };
+        }
+        
+        setWorkingHours(workingHours);
       } catch (e) {
+        console.error('Error fetching working times:', e);
         setWorkingHours(null);
       } finally {
         setBookingLoading(false);
@@ -262,46 +282,55 @@ export default function BioPage(props: { slug: string }) {
       const endHour = parseInt(workingHours.end.split(':')[0], 10);
       const duration = selectedService.duration;
       const slot = Math.max(1, Number(workingHours.slots) || 1);
-      const times: {time: string, label: string, disabled: boolean, full: boolean}[] = [];
+      const times: {time: string, label: string, disabled: boolean, full: boolean, bookedByMe: boolean}[] = [];
       for (let h = startHour; h < endHour; h++) {
         const blockStart = dayjs(`${bookingDate} ${h.toString().padStart(2, '0')}:00`);
         const blockEnd = blockStart.add(duration, 'minute'); // nửa mở, không bao gồm blockEnd
-        const label = `${blockStart.format('H')}h - ${blockEnd.format('H')}h`;
+        // const label = `${blockStart.format('H')}h - ${blockEnd.format('H')}h`;
         // const label = `${blockStart.format('H:mm')} - ${blockEnd.format('H:mm')}`;
-        // const label = `${blockStart.format('H:mm')}`;
+        const label = `${blockStart.format('H:mm')}`;
         let isPast = false;
         const now = dayjs();
         if (bookingDate === now.format('YYYY-MM-DD') && h < now.hour()) {
           isPast = true;
         }
         if (blockEnd.hour() > endHour || (blockEnd.hour() === endHour && blockEnd.minute() > 0)) {
-          times.push({time: blockStart.format('HH:00'), label, disabled: true, full: false});
+          times.push({time: blockStart.format('HH:00'), label, disabled: true, full: false, bookedByMe: false});
           continue;
         }
         let isFull = false;
-        let customerBookedThisSlot = false;
+        let bookedByMe = false;
         const bookingIntervals = bookings
-          .filter(b => b.status === 'confirmed' && b.date === bookingDate)
+          .filter(b => (b.status === 'confirmed' || b.status === 'pending') && b.date === bookingDate)
           .map(b => {
             const bStart = dayjs(`${b.date} ${b.time}`);
             const bService = (storeData?.services ?? []).find(s => s.id === b.serviceId);
             const bDuration = Number(bService?.duration) || 60;
             const bEnd = bStart.add(bDuration, 'minute');
-            return { bStart, bEnd, phone: b.phone };
+            return { bStart, bEnd, phone: b.phone, status: b.status };
           });
         let overlapCount = 0;
         for (const interval of bookingIntervals) {
           if (blockStart.isBefore(interval.bEnd) && interval.bStart.isBefore(blockEnd)) {
             overlapCount++;
+            // Kiểm tra xem số điện thoại hiện tại đã book slot này chưa
             if (interval.phone === form.phone) {
-              customerBookedThisSlot = true;
+              bookedByMe = true;
             }
           }
         }
         isFull = overlapCount >= slot;
-        // const finalLabel = isFull ? `${label} (Hết chỗ)` : customerBookedThisSlot ? `${label} (Bạn đã đặt)` : label;
-        const finalLabel = isFull ? `${label}` : customerBookedThisSlot ? `${label}` : label;
-        times.push({time: blockStart.format('HH:00'), label: finalLabel, disabled: isFull || isPast || customerBookedThisSlot, full: isFull});
+        
+        // Nếu đã book bởi số điện thoại này, disabled và highlight
+        if (bookedByMe) {
+          times.push({time: blockStart.format('HH:00'), label: `Booked`, disabled: true, full: false, bookedByMe: true});
+        } else if (isFull) {
+          times.push({time: blockStart.format('HH:00'), label: `Full`, disabled: true, full: true, bookedByMe: false});
+        } else if (isPast) {
+          times.push({time: blockStart.format('HH:00'), label, disabled: true, full: false, bookedByMe: false});
+        } else {
+          times.push({time: blockStart.format('HH:00'), label, disabled: false, full: false, bookedByMe: false});
+        }
       }
       setAvailableTimes(times);
       setBookingTime('');
@@ -321,9 +350,9 @@ export default function BioPage(props: { slug: string }) {
     setShowBookingForm(true)
   }
 
-  const handleTimeSlotClick = (timeSlot: {time: string, label: string, disabled: boolean, full: boolean}) => {
+  const handleTimeSlotClick = (timeSlot: {time: string, label: string, disabled: boolean, full: boolean, bookedByMe: boolean}) => {
     if (timeSlot.disabled) {
-      if (timeSlot.label.includes('(đã book)')) {
+      if (timeSlot.bookedByMe) {
         setSnackMessage('Bạn đã đặt lịch cho khung giờ này rồi!');
         setTimeout(() => setSnackMessage(''), 3000);
       }
@@ -362,8 +391,11 @@ export default function BioPage(props: { slug: string }) {
       setCustomerDocId(doc.id);
       const data = doc.data() as any;
       setForm(f => ({ ...f, name: data.fullName || '' }));
+      setIsExistingCustomer(true);
     } else {
       setCustomerDocId(null);
+      setForm(f => ({ ...f, name: '' }));
+      setIsExistingCustomer(false);
     }
   };
 
@@ -371,22 +403,24 @@ export default function BioPage(props: { slug: string }) {
     if (!userId) return;
     setBookingLoading(true);
     try {
+      console.log('Starting booking creation...');
+      
       // Kiểm tra customer theo số điện thoại và userId
+      console.log('Checking customer...');
       const customerQuery = query(
         collection(db, 'customers'), 
         where('phone', '==', form.phone),
         where('userId', '==', userId)
       );
       const customerSnap = await getDocs(customerQuery);
+      console.log('Customer check completed');
+      
       let customerRef;
 
       if (!customerSnap.empty) {
         // Nếu tìm thấy customer với số điện thoại và userId này
         customerRef = doc(db, 'customers', customerSnap.docs[0].id);
-        // Update tên nếu khác
-        if (customerSnap.docs[0].data().fullName !== form.name) {
-          await updateDoc(customerRef, { fullName: form.name });
-        }
+        // Bỏ phần update tên để tránh lỗi permission
       } else {
         // Tạo customer mới nếu không tìm thấy số điện thoại cho userId này
         customerRef = await addDoc(collection(db, 'customers'), {
@@ -404,28 +438,37 @@ export default function BioPage(props: { slug: string }) {
       const slot = Math.max(1, Number(workingHours.slots) || 1);
       const blockStart = dayjs(`${date} ${time}`);
       const blockEnd = blockStart.add(duration, 'minute');
-      // Lấy tất cả booking đã confirmed của ngày đó
+      // Lấy tất cả booking đã confirmed và pending của ngày đó
       const bookingsSnap = await getDocs(query(
         collection(db, 'bookings'),
         where('userId', '==', userId),
-        where('date', '==', date),
-        where('status', '==', 'confirmed')
+        where('date', '==', date)
       ));
       const bookings = bookingsSnap.docs.map(doc => doc.data());
       const bookingIntervals = bookings
-        .filter(b => b.status === 'confirmed' && b.date === date)
+        .filter(b => (b.status === 'confirmed' || b.status === 'pending') && b.date === date)
         .map(b => {
           const bStart = dayjs(`${b.date} ${b.time}`);
           const bService = (storeData?.services ?? []).find(s => s.id === b.serviceId);
           const bDuration = Number(bService?.duration) || 60;
           const bEnd = bStart.add(bDuration, 'minute');
-          return { bStart, bEnd };
+          return { bStart, bEnd, phone: b.phone };
         });
       let overlapCount = 0;
+      let alreadyBookedByMe = false;
       for (const interval of bookingIntervals) {
         if (blockStart.isBefore(interval.bEnd) && interval.bStart.isBefore(blockEnd)) {
           overlapCount++;
+          // Kiểm tra xem số điện thoại hiện tại đã book slot này chưa
+          if (interval.phone === form.phone) {
+            alreadyBookedByMe = true;
+          }
         }
+      }
+      if (alreadyBookedByMe) {
+        setSnackMessage('Bạn đã đặt lịch cho khung giờ này rồi!');
+        setTimeout(() => setSnackMessage(''), 3000);
+        return;
       }
       if (overlapCount >= slot) {
         setSnackMessage('Đã hết slot');
@@ -437,7 +480,8 @@ export default function BioPage(props: { slug: string }) {
       const expectedRevenue = selectedService ? selectedService.price : 0;
 
       // Tạo booking
-      const bookingRef = await addDoc(collection(db, 'bookings'), {
+      console.log('Creating booking...');
+      const bookingData = {
         userId: userId,
         customerId: customerRef.id,
         fullName: form.name,
@@ -449,10 +493,13 @@ export default function BioPage(props: { slug: string }) {
         status: 'pending',
         expectedRevenue,
         createdAt: serverTimestamp()
-      });
+      };
+      console.log('Booking data to send:', bookingData);
+      const bookingRef = await addDoc(collection(db, 'bookings'), bookingData);
+      console.log('Booking created successfully');
 
-      // Update booking với id
-      await updateDoc(bookingRef, { id: bookingRef.id });
+      // Bỏ phần update id để tránh lỗi permission
+      // await updateDoc(bookingRef, { id: bookingRef.id });
       setSubmitted(true);
       setShowBookingForm(false);
     } catch (err) {
@@ -572,64 +619,73 @@ export default function BioPage(props: { slug: string }) {
       )}
       {showBookingForm && !submitted && (
         <div className="modal">
-          <div className="modal-content card">
+          <div className="modal-content card px-0">
             <div className="mb-4">
               <h2 className="text-lg text-center font-semibold">Đặt lịch {form.serviceName}</h2>
             </div>
             <div className="mb-4">
-              <input
-                type="tel"
-                placeholder="Số điện thoại"
-                className="input"
-                value={form.phone}
-                onChange={e => handlePhoneChange(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Tên đầy đủ"
-                className="input"
-                value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
-              />
+              <div className="px-4">
+                <input
+                  type="tel"
+                  placeholder="Số điện thoại"
+                  className="input"
+                  value={form.phone}
+                  onChange={e => handlePhoneChange(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Tên đầy đủ"
+                  className="input"
+                  value={form.name}
+                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  disabled={isExistingCustomer}
+                />  
+              </div>
               <div>
-                <h3 className="text-sm font-semibold mt-2 mb-1 ml-1">Chọn ngày hẹn</h3>
+                <h3 className="text-sm font-semibold mt-2 mb-0 ml-1 px-4">Chọn ngày hẹn</h3>
                 <div className="flex gap-2 overflow-x-scroll py-2">
-                  {availableDates.map(d => (
-                    <button
+                {availableDates.map((d, index) => (
+                  <button
                     key={d.date}
                     disabled={d.disabled}
-                    className={`button ${d.disabled ? 'disabled' : ''} whitespace-nowrap mr-2`}
+                    className={`button ${d.disabled ? 'disabled' : ''} whitespace-nowrap mr-2 ${index === 0 ? 'ml-4' : ''} ${index === availableDates.length - 1 ? 'mr-4' : ''}`}
                     style={{
                       background: d.disabled ? 'var(--secondaryColor)' : 'var(--surfaceColor)',
                       color: 'var(--textColor)',
                       border: d.disabled
                         ? 'none'
                         : d.date === bookingDate
-                          ? '2px solid var(--textColor)'        // nếu đang chọn
-                          : '2px solid var(--secondaryColor)',    // mặc định
+                          ? '2px solid var(--textColor)'        // if selected
+                          : '2px solid var(--secondaryColor)',    // default
                     }}
                     onClick={() => setBookingDate(d.date)}
                   > {d.label} </button>
-                  ))}
+                ))}
                 </div>
 
               </div>
-              <div>
-                {bookingDate && <h3 className="text-sm font-semibold mt-2 mb-1 ml-1">Chọn giờ hẹn</h3>}
+              <div className="px-4">
+                {bookingDate && <h3 className="text-sm font-semibold mt-2 mb-0 ml-1">Chọn giờ hẹn</h3>}
                 <div className="grid grid-cols-3 gap-2 py-2">
                   {availableTimes.map(t => (
                     <button
                       key={t.time}
                       disabled={t.disabled}
-                      className={`button ${t.disabled ? 'disabled' : ''}`}
+                      className={`button ${t.disabled ? 'disabled' : ''} px-0`}
                       style={{
-                        background: t.full ? '#FEE2E2' : 'var(--surfaceColor)',
+                        background: t.bookedByMe
+                          ? '#FFF4C4' // Light yellow for booked slots
+                          : t.full
+                            ? '#FEE2E2' // Light red for full slots
+                            : 'var(--surfaceColor)',
                         color: 'var(--textColor)',
-                        border: t.full
-                          ? 'none'
-                          : t.time === bookingTime
-                            ? '2px solid var(--textColor)'        // nếu đang chọn
-                            : '2px solid var(--secondaryColor)',    // mặc định
+                        border: t.bookedByMe
+                          ? '2px solid #FFF4C4' // Yellow border for booked slots
+                          : t.full
+                            ? '2px solid #FEE2E2' // Red border for full slots
+                            : t.time === bookingTime
+                              ? '2px solid var(--textColor)'        // Border for selected slot
+                              : '2px solid var(--secondaryColor)',    // Default border
                       }}
                       onClick={() => handleTimeSlotClick(t)}
                     >
@@ -639,7 +695,7 @@ export default function BioPage(props: { slug: string }) {
                 </div>
               </div>
             </div>
-            <div className="flex space-x-2 justify-end">
+            <div className="flex space-x-2 justify-end px-4">
 
               <button
                 onClick={() => setShowBookingForm(false)}
