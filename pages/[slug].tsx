@@ -670,8 +670,10 @@ export default function BioPage(props: { slug: string }) {
       
       let isFull = false;
       let bookedByMe = false;
-      const bookingIntervals = bookingsOfDay
-        .filter(b => (b.status === 'confirmed' || b.status === 'pending') && b.date === bookingDate)
+      
+      // Chỉ tính confirmed bookings vào giới hạn slot
+      const confirmedBookings = bookingsOfDay
+        .filter(b => b.status === 'confirmed' && b.date === bookingDate)
         .map(b => {
           const bStart = dayjs(`${b.date} ${b.time}`);
           const bService = (storeData.services ?? []).find(s => s.id === b.serviceId);
@@ -680,16 +682,36 @@ export default function BioPage(props: { slug: string }) {
           return { bStart, bEnd, phone: b.phone, status: b.status };
         });
       
+      // Kiểm tra pending bookings để hiển thị "booked by me"
+      const pendingBookings = bookingsOfDay
+        .filter(b => b.status === 'pending' && b.date === bookingDate)
+        .map(b => {
+          const bStart = dayjs(`${b.date} ${b.time}`);
+          const bService = (storeData.services ?? []).find(s => s.id === b.serviceId);
+          const bDuration = Number(bService?.duration) || 60;
+          const bEnd = bStart.add(bDuration, 'minute');
+          return { bStart, bEnd, phone: b.phone, status: b.status };
+        });
+      
+      // Tính overlap cho confirmed bookings (giới hạn slot)
       let overlapCount = 0;
-      for (const interval of bookingIntervals) {
+      for (const interval of confirmedBookings) {
         if (blockStart.isBefore(interval.bEnd) && interval.bStart.isBefore(blockEnd)) {
           overlapCount++;
-          if (interval.phone === getFullPhoneNumber()) {
-            bookedByMe = true;
-          }
         }
       }
       isFull = overlapCount >= slot;
+      
+      // Kiểm tra booked by me (cả confirmed và pending)
+      const allBookings = [...confirmedBookings, ...pendingBookings];
+      for (const interval of allBookings) {
+        if (blockStart.isBefore(interval.bEnd) && interval.bStart.isBefore(blockEnd)) {
+          if (interval.phone === getFullPhoneNumber()) {
+            bookedByMe = true;
+            break;
+          }
+        }
+      }
       
       if (bookedByMe) {
         times.push({time: blockStart.format('HH:00'), label: t('booked'), disabled: true, full: false, bookedByMe: true});
