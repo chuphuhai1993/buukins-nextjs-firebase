@@ -35,7 +35,16 @@ export const translations = {
     loadingStore: 'جاري تحميل المتجر...',
     storeNotFound: 'المتجر غير موجود',
     errorLoadingStore: 'خطأ في تحميل بيانات المتجر',
-    returnToHome: 'العودة إلى الصفحة الرئيسية'
+    returnToHome: 'العودة إلى الصفحة الرئيسية',
+    
+    // Days of week
+    sunday: 'الأحد',
+    monday: 'الاثنين',
+    tuesday: 'الثلاثاء',
+    wednesday: 'الأربعاء',
+    thursday: 'الخميس',
+    friday: 'الجمعة',
+    saturday: 'السبت'
   },
   
   en: {
@@ -72,7 +81,16 @@ export const translations = {
     loadingStore: 'Loading store...',
     storeNotFound: 'Store not found',
     errorLoadingStore: 'Error loading store data',
-    returnToHome: 'Return to Home'
+    returnToHome: 'Return to Home',
+    
+    // Days of week
+    sunday: 'Sunday',
+    monday: 'Monday',
+    tuesday: 'Tuesday',
+    wednesday: 'Wednesday',
+    thursday: 'Thursday',
+    friday: 'Friday',
+    saturday: 'Saturday'
   },
   
   pt: {
@@ -100,7 +118,16 @@ export const translations = {
     loadingStore: 'Carregando loja...',
     storeNotFound: 'Loja não encontrada',
     errorLoadingStore: 'Erro ao carregar dados da loja',
-    returnToHome: 'Voltar ao Início'
+    returnToHome: 'Voltar ao Início',
+    
+    // Days of week
+    sunday: 'Domingo',
+    monday: 'Segunda-feira',
+    tuesday: 'Terça-feira',
+    wednesday: 'Quarta-feira',
+    thursday: 'Quinta-feira',
+    friday: 'Sexta-feira',
+    saturday: 'Sábado'
   },
   
   de: {
@@ -128,7 +155,16 @@ export const translations = {
     loadingStore: 'Lade Geschäft...',
     storeNotFound: 'Geschäft nicht gefunden',
     errorLoadingStore: 'Fehler beim Laden der Geschäftsdaten',
-    returnToHome: 'Zurück zur Startseite'
+    returnToHome: 'Zurück zur Startseite',
+    
+    // Days of week
+    sunday: 'Sonntag',
+    monday: 'Montag',
+    tuesday: 'Dienstag',
+    wednesday: 'Mittwoch',
+    thursday: 'Donnerstag',
+    friday: 'Freitag',
+    saturday: 'Samstag'
   },
   
   hi: {
@@ -156,7 +192,16 @@ export const translations = {
     loadingStore: 'स्टोर लोड हो रहा है...',
     storeNotFound: 'स्टोर नहीं मिला',
     errorLoadingStore: 'स्टोर डेटा लोड करने में त्रुटि',
-    returnToHome: 'होम पर वापस जाएं'
+    returnToHome: 'होम पर वापस जाएं',
+    
+    // Days of week
+    sunday: 'रविवार',
+    monday: 'सोमवार',
+    tuesday: 'मंगलवार',
+    wednesday: 'बुधवार',
+    thursday: 'गुरुवार',
+    friday: 'शुक्रवार',
+    saturday: 'शनिवार'
   },
   
   ko: {
@@ -184,7 +229,16 @@ export const translations = {
     loadingStore: '매장 로딩 중...',
     storeNotFound: '매장을 찾을 수 없습니다',
     errorLoadingStore: '매장 데이터 로딩 오류',
-    returnToHome: '홈으로 돌아가기'
+    returnToHome: '홈으로 돌아가기',
+    
+    // Days of week
+    sunday: '일요일',
+    monday: '월요일',
+    tuesday: '화요일',
+    wednesday: '수요일',
+    thursday: '목요일',
+    friday: '금요일',
+    saturday: '토요일'
   },
   
   id: {
@@ -212,7 +266,16 @@ export const translations = {
     loadingStore: 'Memuat toko...',
     storeNotFound: 'Toko tidak ditemukan',
     errorLoadingStore: 'Error memuat data toko',
-    returnToHome: 'Kembali ke Beranda'
+    returnToHome: 'Kembali ke Beranda',
+    
+    // Days of week
+    sunday: 'Minggu',
+    monday: 'Senin',
+    tuesday: 'Selasa',
+    wednesday: 'Rabu',
+    thursday: 'Kamis',
+    friday: 'Jumat',
+    saturday: 'Sabtu'
   },
   
   ja: {
@@ -240,7 +303,16 @@ export const translations = {
     loadingStore: '店舗を読み込み中...',
     storeNotFound: '店舗が見つかりません',
     errorLoadingStore: '店舗データの読み込みエラー',
-    returnToHome: 'ホームに戻る'
+    returnToHome: 'ホームに戻る',
+    
+    // Days of week
+    sunday: '日曜日',
+    monday: '月曜日',
+    tuesday: '火曜日',
+    wednesday: '水曜日',
+    thursday: '木曜日',
+    friday: '金曜日',
+    saturday: '土曜日'
   },
   
   fr: {
@@ -268,7 +340,16 @@ export const translations = {
     loadingStore: 'Chargement du magasin...',
     storeNotFound: 'Magasin introuvable',
     errorLoadingStore: 'Erreur lors du chargement des données du magasin',
-    returnToHome: 'Retour à l\'Accueil'
+    returnToHome: 'Retour à l\'Accueil',
+    
+    // Days of week
+    sunday: 'Dimanche',
+    monday: 'Lundi',
+    tuesday: 'Mardi',
+    wednesday: 'Mercredi',
+    thursday: 'Jeudi',
+    friday: 'Vendredi',
+    saturday: 'Samedi'
   },
   
   es: {
@@ -296,7 +377,16 @@ export const translations = {
     loadingStore: 'Cargando tienda...',
     storeNotFound: 'Tienda no encontrada',
     errorLoadingStore: 'Error al cargar datos de la tienda',
-    returnToHome: 'Volver al Inicio'
+    returnToHome: 'Volver al Inicio',
+    
+    // Days of week
+    sunday: 'Domingo',
+    monday: 'Lunes',
+    tuesday: 'Martes',
+    wednesday: 'Miércoles',
+    thursday: 'Jueves',
+    friday: 'Viernes',
+    saturday: 'Sábado'
   },
   
   th: {
@@ -324,7 +414,16 @@ export const translations = {
     loadingStore: 'กำลังโหลดร้านค้า...',
     storeNotFound: 'ไม่พบร้านค้า',
     errorLoadingStore: 'เกิดข้อผิดพลาดในการโหลดข้อมูลร้านค้า',
-    returnToHome: 'กลับหน้าหลัก'
+    returnToHome: 'กลับหน้าหลัก',
+    
+    // Days of week
+    sunday: 'วันอาทิตย์',
+    monday: 'วันจันทร์',
+    tuesday: 'วันอังคาร',
+    wednesday: 'วันพุธ',
+    thursday: 'วันพฤหัสบดี',
+    friday: 'วันศุกร์',
+    saturday: 'วันเสาร์'
   },
   
   zh: {
@@ -352,7 +451,16 @@ export const translations = {
     loadingStore: '正在加载商店...',
     storeNotFound: '未找到商店',
     errorLoadingStore: '加载商店数据时出错',
-    returnToHome: '返回首页'
+    returnToHome: '返回首页',
+    
+    // Days of week
+    sunday: '星期日',
+    monday: '星期一',
+    tuesday: '星期二',
+    wednesday: '星期三',
+    thursday: '星期四',
+    friday: '星期五',
+    saturday: '星期六'
   },
   
   vi: {
@@ -380,7 +488,16 @@ export const translations = {
     loadingStore: 'Loading store...',
     storeNotFound: 'Store not found',
     errorLoadingStore: 'Error loading store data',
-    returnToHome: 'Return to Home'
+    returnToHome: 'Return to Home',
+    
+    // Days of week
+    sunday: 'Chủ nhật',
+    monday: 'Thứ hai',
+    tuesday: 'Thứ ba',
+    wednesday: 'Thứ tư',
+    thursday: 'Thứ năm',
+    friday: 'Thứ sáu',
+    saturday: 'Thứ bảy'
   }
 };
 

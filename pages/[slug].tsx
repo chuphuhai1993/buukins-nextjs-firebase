@@ -5,6 +5,8 @@ import { db } from '../lib/firebase'
 import { useEffect, useState, useMemo } from 'react'
 import dayjs from 'dayjs';
 import { useTranslation, Language } from '../lib/useTranslation';
+import { useCountry, Country } from '../lib/useCountry';
+import { getCountryConfig } from '../lib/countries';
 
 interface Service {
   id: string;
@@ -71,6 +73,7 @@ export default function BioPage(props: { slug: string }) {
   const { slug } = props;
   const router = useRouter()
   const { t, language, setLanguage } = useTranslation('vi');
+  const { country, setCountry, formatCurrency, formatDate, formatTime } = useCountry('VN');
   const [storeData, setStoreData] = useState<StoreData | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -160,6 +163,12 @@ export default function BioPage(props: { slug: string }) {
           if (storeLanguage && ['ar', 'en', 'pt', 'de', 'hi', 'ko', 'id', 'ja', 'fr', 'es', 'th', 'zh', 'vi'].includes(storeLanguage)) {
             setLanguage(storeLanguage);
           }
+          
+          // Fetch country from store_settings
+          const storeCountry = storeSettings.country as Country;
+          if (storeCountry && ['US', 'CN', 'DE', 'JP', 'IN', 'GB', 'FR', 'CA', 'AU', 'KR', 'BR', 'ES', 'IT', 'TR', 'MX', 'TH', 'VN', 'SG', 'AE', 'CH', 'PT', 'ID', 'NL', 'SE', 'NO', 'DK', 'AT', 'BE', 'AR', 'EG', 'RU', 'ZA', 'ET', 'IR', 'SA'].includes(storeCountry)) {
+            setCountry(storeCountry);
+          }
         }
       } catch (err) {
         console.error('Error fetching data:', err)
@@ -170,7 +179,7 @@ export default function BioPage(props: { slug: string }) {
     }
     
     fetchData()
-  }, [slug])
+  }, [slug, setLanguage, setCountry, t]) // Added setCountry to dependencies
 
   // Áp dụng biến theme lên body (áp dụng cho toàn trang)
   useEffect(() => {
@@ -253,7 +262,10 @@ export default function BioPage(props: { slug: string }) {
     const daysMap = {
       'sun': 0, 'mon': 1, 'tue': 2, 'wed': 3, 'thu': 4, 'fri': 5, 'sat': 6
     };
-    const weekdayVi = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const weekdayNames = [
+      t('sunday'), t('monday'), t('tuesday'), t('wednesday'), 
+      t('thursday'), t('friday'), t('saturday')
+    ];
     const validDays = (workingHours.days || []).map((d: string) => daysMap[d]);
     const today = dayjs();
     const dates = [];
@@ -261,16 +273,28 @@ export default function BioPage(props: { slug: string }) {
       const d = today.add(i, 'day');
       const dow = d.day();
       const disabled = !validDays.includes(dow);
+      
+      // Format ngày đơn giản: "thứ, ngày/tháng" hoặc "tháng/ngày"
+      const countryConfig = getCountryConfig(country);
+      let dateLabel;
+      if (countryConfig.dateFormat.includes('DD/MM') || countryConfig.dateFormat.includes('MM/DD')) {
+        // Format: "Thứ 2, 15/1" hoặc "Monday, 1/15"
+        dateLabel = `${weekdayNames[dow]}, ${d.format('D/M')}`;
+      } else {
+        // Format: "Thứ 2, 1/15" hoặc "Monday, 1/15"
+        dateLabel = `${weekdayNames[dow]}, ${d.format('M/D')}`;
+      }
+      
       dates.push({
         date: d.format('YYYY-MM-DD'),
-        label: `${weekdayVi[dow]} - ${d.format('D/M')}`,
+        label: dateLabel,
         disabled
       });
     }
     setAvailableDates(dates);
     setBookingDate('');
     setBookingTime('');
-  }, [workingHours]);
+  }, [workingHours, country, t]); // Added country to dependencies
 
   // Fetch bookings khi chọn ngày và service
   useEffect(() => {
@@ -354,7 +378,7 @@ export default function BioPage(props: { slug: string }) {
     }
     
     return times;
-  }, [bookingDate, form.serviceId, workingHours, storeData, bookingsOfDay, form.phone, t]);
+  }, [bookingDate, form.serviceId, workingHours, storeData, bookingsOfDay, form.phone, t, formatTime]); // Added formatTime to dependencies
 
   const handleBookingClick = (service: Service) => {
     setForm(prev => ({
@@ -620,7 +644,7 @@ export default function BioPage(props: { slug: string }) {
             <p className="text-sm mb-8 text-gray">{service.description}</p>
             <div className="flex-between">
               <div>
-                <p className="font-semibold text-sm m-0 mb-1">{service.price.toLocaleString()}đ</p>
+                <p className="font-semibold text-sm m-0 mb-1">{formatCurrency(service.price)}</p>
                 <p className="text-sm m-0 text-gray">{service.duration} {t('minutes')}</p>
               </div>
               <button
@@ -663,56 +687,34 @@ export default function BioPage(props: { slug: string }) {
               </div>
               <div>
                 <h3 className="text-sm font-semibold mt-2 mb-0 ml-1 px-3">{t('selectDate')}</h3>
-                <div className="flex gap-2 overflow-x-scroll py-2">
-                {availableDates.map((d, index) => (
-                  <button
-                    key={d.date}
-                    disabled={d.disabled}
-                    className={`button ${d.disabled ? 'disabled' : ''} whitespace-nowrap mr-2 ${index === 0 ? 'ml-4' : ''} ${index === availableDates.length - 1 ? 'mr-4' : ''}`}
-                    style={{
-                      background: d.disabled ? 'var(--secondaryColor)' : 'var(--surfaceColor)',
-                      color: 'var(--textColor)',
-                      border: d.disabled
-                        ? 'none'
-                        : d.date === bookingDate
-                          ? '2px solid var(--textColor)'        // if selected
-                          : '2px solid var(--secondaryColor)',    // default
-                    }}
-                    onClick={() => setBookingDate(d.date)}
-                  > {d.label} </button>
-                ))}
-                </div>
+                <div className="date-grid">
+              {availableDates.map((date, index) => (
+                <button
+                  key={index}
+                  onClick={() => setBookingDate(date.date)}
+                  className={`date-button ${date.disabled ? 'disabled' : ''} ${bookingDate === date.date ? 'selected' : ''}`}
+                  disabled={date.disabled}
+                >
+                  {date.label}
+                </button>
+              ))}
+            </div>
 
               </div>
               <div className="px-3">
                 {bookingDate && <h3 className="text-sm font-semibold mt-2 mb-0 ml-1">{t('selectTime')}</h3>}
-                <div className="grid grid-cols-3 gap-2 py-2">
-                  {availableTimes.map(t => (
-                    <button
-                      key={t.time}
-                      disabled={t.disabled}
-                      className={`button ${t.disabled ? 'disabled' : ''} px-0`}
-                      style={{
-                        background: t.bookedByMe
-                          ? '#FFF4C4' // Light yellow for booked slots
-                          : t.full
-                            ? '#FEE2E2' // Light red for full slots
-                            : 'var(--surfaceColor)',
-                        color: 'var(--textColor)',
-                        border: t.bookedByMe
-                          ? '2px solid #FFF4C4' // Yellow border for booked slots
-                          : t.full
-                            ? '2px solid #FEE2E2' // Red border for full slots
-                            : t.time === bookingTime
-                              ? '2px solid var(--textColor)'        // Border for selected slot
-                              : '2px solid var(--secondaryColor)',    // Default border
-                      }}
-                      onClick={() => handleTimeSlotClick(t)}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
+                <div className="time-grid">
+              {availableTimes.map((t, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleTimeSlotClick(t)}
+                  className={`time-button ${t.disabled ? 'disabled' : ''} ${bookingTime === t.time ? 'selected' : ''} ${t.bookedByMe ? 'booked-by-me' : ''} ${t.full ? 'full' : ''}`}
+                  disabled={t.disabled}
+                >
+                  {t.bookedByMe ? t.label : t.full ? t.label : formatTime(`${bookingDate} ${t.time}`)}
+                </button>
+              ))}
+            </div>
               </div>
             </div>
             <div className="flex space-x-2 justify-end px-3">
