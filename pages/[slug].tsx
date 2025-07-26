@@ -87,7 +87,8 @@ export default function BioPage(props: { slug: string }) {
     serviceName: ''
   })
   const [selectedCountryCode, setSelectedCountryCode] = useState<Country>('VN');
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showCountryDialog, setShowCountryDialog] = useState(false);
+  const [countrySearchTerm, setCountrySearchTerm] = useState('');
   const [checkingCustomer, setCheckingCustomer] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -106,19 +107,21 @@ export default function BioPage(props: { slug: string }) {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (!target.closest('.country-code-dropdown')) {
-        setShowCountryDropdown(false);
+      // Chỉ đóng dialog khi click vào overlay (không phải dialog content)
+      if (target.classList.contains('country-dialog-overlay')) {
+        setShowCountryDialog(false);
+        setCountrySearchTerm('');
       }
     };
 
-    if (showCountryDropdown) {
+    if (showCountryDialog) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showCountryDropdown]);
+  }, [showCountryDialog]);
 
   // Fetch data khi component mount
   useEffect(() => {
@@ -784,7 +787,8 @@ export default function BioPage(props: { slug: string }) {
 
   const handleCountryCodeSelect = (countryCode: Country) => {
     setSelectedCountryCode(countryCode);
-    setShowCountryDropdown(false);
+    setShowCountryDialog(false);
+    setCountrySearchTerm('');
   };
 
   const handleSubmitCustom = async (date: string, time: string) => {
@@ -1016,30 +1020,17 @@ export default function BioPage(props: { slug: string }) {
             </div>
             <div className="mb-4">
               <div className="px-3">
-                <div className="phone-input-container">
+                <div className="phone-input-container mb-2">
                   <div className="country-code-dropdown">
                     <button
                       type="button"
-                      className={`country-code-button ${showCountryDropdown ? 'open' : ''}`}
-                      onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                      className="country-code-button"
+                      onClick={() => setShowCountryDialog(true)}
                     >
                       <span className="flag">{getCountryConfig(selectedCountryCode).flag}</span>
                       <span className="dial-code">{getCountryConfig(selectedCountryCode).dialCode}</span>
                       <span className="arrow">▼</span>
                     </button>
-                    <div className={`country-dropdown-menu ${showCountryDropdown ? 'open' : ''}`}>
-                      {Object.values(countries).map((country) => (
-                        <button
-                          key={country.code}
-                          className="country-option"
-                          onClick={() => handleCountryCodeSelect(country.code)}
-                        >
-                          <span className="flag">{country.flag}</span>
-                          <span className="dial-code">{country.dialCode}</span>
-                          <span className="name">{country.name}</span>
-                        </button>
-                      ))}
-                    </div>
                   </div>
                   <input
                     type="tel"
@@ -1063,11 +1054,9 @@ export default function BioPage(props: { slug: string }) {
                   onChange={e => setForm({ ...form, name: e.target.value })}
                   disabled={isExistingCustomer}
                 />
-                {isExistingCustomer && (
-                  <div className="existing-customer-notice">
-                    <span className="notice-text">✓ {t('existingCustomer')}</span>
-                  </div>
-                )}
+                {/* {isExistingCustomer && (
+                  <span className="notice-text">✓ {t('existingCustomer')}</span>
+                )} */}
               </div>
               <div>
                 <h3 className="text-sm font-semibold mt-2 mb-0 ml-1 px-3">{t('selectDate')}</h3>
@@ -1076,7 +1065,7 @@ export default function BioPage(props: { slug: string }) {
                     <button
                       key={index}
                       onClick={() => setBookingDate(date.date)}
-                      className={`date-button ${date.disabled ? 'disabled' : ''} ${bookingDate === date.date ? 'selected' : ''} ${index === 0 ? 'ml-4' : ''} ${index === availableDates.length - 1 ? 'mr-3' : ''}`}
+                      className={`date-button ${date.disabled ? 'disabled' : ''} ${bookingDate === date.date ? 'selected' : ''} ${index === 0 ? 'ml-3' : ''} ${index === availableDates.length - 1 ? 'mr-3' : ''}`}
                       disabled={date.disabled}
                     >
                       {date.label}
@@ -1159,6 +1148,42 @@ export default function BioPage(props: { slug: string }) {
           <p>{snackMessage}</p>
         </div>
       )}
+
+      {/* Country Selection Dialog */}
+      <div className={`country-dialog-overlay ${showCountryDialog ? 'open' : ''}`}>
+        <div className="country-dialog">
+          
+          <div className="country-dialog-search">
+            <input
+              type="text"
+              className="country-search-input"
+              placeholder={t('searchCountry')}
+              value={countrySearchTerm}
+              onChange={(e) => setCountrySearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <div className="country-dialog-list">
+            {Object.values(countries)
+              .filter(country => 
+                country.name.toLowerCase().includes(countrySearchTerm.toLowerCase()) ||
+                country.dialCode.includes(countrySearchTerm) ||
+                country.code.toLowerCase().includes(countrySearchTerm.toLowerCase())
+              )
+              .map((country) => (
+                <button
+                  key={country.code}
+                  className={`country-dialog-option ${selectedCountryCode === country.code ? 'selected' : ''}`}
+                  onClick={() => handleCountryCodeSelect(country.code)}
+                >
+                  <span className="flag">{country.flag}</span>
+                  <span className="dial-code">{country.dialCode}</span>
+                  <span className="name">{country.name}</span>
+                </button>
+              ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

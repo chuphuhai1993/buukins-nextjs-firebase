@@ -39,6 +39,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'عميل موجود',
+    selectCountry: 'اختر البلد',
+    searchCountry: 'البحث عن بلد...',
     
     // Days of week
     sunday: 'الأحد',
@@ -88,6 +90,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'Existing Customer',
+    selectCountry: 'Select Country',
+    searchCountry: 'Search country...',
     
     // Days of week
     sunday: 'Sunday',
@@ -128,6 +132,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'Cliente Existente',
+    selectCountry: 'Selecionar País',
+    searchCountry: 'Pesquisar país...',
     
     // Days of week
     sunday: 'Domingo',
@@ -168,6 +174,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'Bestehender Kunde',
+    selectCountry: 'Land auswählen',
+    searchCountry: 'Land suchen...',
     
     // Days of week
     sunday: 'Sonntag',
@@ -208,6 +216,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'मوجود ग्राहक',
+    selectCountry: 'देश चुनें',
+    searchCountry: 'देश खोजें...',
     
     // Days of week
     sunday: 'रविवार',
@@ -248,6 +258,8 @@ export const translations = {
     
     // Customer
     existingCustomer: '기존 고객',
+    selectCountry: '국가 선택',
+    searchCountry: '국가 검색...',
     
     // Days of week
     sunday: '일요일',
@@ -288,6 +300,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'Pelanggan yang ada',
+    selectCountry: 'Pilih Negara',
+    searchCountry: 'Cari negara...',
     
     // Days of week
     sunday: 'Minggu',
@@ -328,6 +342,8 @@ export const translations = {
     
     // Customer
     existingCustomer: '既存の顧客',
+    selectCountry: '国を選択',
+    searchCountry: '国を検索...',
     
     // Days of week
     sunday: '日曜日',
@@ -368,6 +384,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'Client existant',
+    selectCountry: 'Sélectionner le pays',
+    searchCountry: 'Rechercher un pays...',
     
     // Days of week
     sunday: 'Dimanche',
@@ -408,6 +426,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'Cliente existente',
+    selectCountry: 'Seleccionar país',
+    searchCountry: 'Buscar país...',
     
     // Days of week
     sunday: 'Domingo',
@@ -448,6 +468,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'ลูกค้าที่มีอยู่',
+    selectCountry: 'เลือกประเทศ',
+    searchCountry: 'ค้นหาประเทศ...',
     
     // Days of week
     sunday: 'วันอาทิตย์',
@@ -488,6 +510,8 @@ export const translations = {
     
     // Customer
     existingCustomer: '现有客户',
+    selectCountry: '选择国家',
+    searchCountry: '搜索国家...',
     
     // Days of week
     sunday: '星期日',
@@ -528,6 +552,8 @@ export const translations = {
     
     // Customer
     existingCustomer: 'Khách hàng hiện có',
+    selectCountry: 'Chọn quốc gia',
+    searchCountry: 'Tìm kiếm quốc gia...',
     
     // Days of week
     sunday: 'Chủ nhật',
