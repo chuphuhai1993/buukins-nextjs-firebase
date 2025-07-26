@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host') || '';
   const slug = host.split('.')[0];
-  const reserved = ['www', 'meez', 'vercel', 'localhost'];
+  // Thêm 'buukins' vào reserved
+  const reserved = ['www', 'meez', 'vercel', 'localhost', 'buukins'];
 
   const pathname = request.nextUrl.pathname;
 
