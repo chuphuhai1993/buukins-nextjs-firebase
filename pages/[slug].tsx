@@ -692,7 +692,7 @@ export default function BioPage(props: { slug: string }) {
                 <button
                   key={index}
                   onClick={() => setBookingDate(date.date)}
-                  className={`date-button ${date.disabled ? 'disabled' : ''} ${bookingDate === date.date ? 'selected' : ''}`}
+                  className={`date-button ${date.disabled ? 'disabled' : ''} ${bookingDate === date.date ? 'selected' : ''} ${index === 0 ? 'ml-4' : ''} ${index === availableDates.length - 1 ? 'mr-3' : ''}`}
                   disabled={date.disabled}
                 >
                   {date.label}
