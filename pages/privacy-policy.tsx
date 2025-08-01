@@ -5,72 +5,70 @@ const PrivacyPolicyPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Chính Sách Bảo Mật - Buukins</title>
-        <meta name="description" content="Chính sách bảo mật của ứng dụng Buukins - cam kết bảo vệ quyền riêng tư của người dùng" />
+        <title>Privacy Policy - Buukins</title>
+        <meta name="description" content="Buukins app's privacy policy – committed to protecting user privacy." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <div className="privacy-policy-container">
         <div className="privacy-policy-content">
-          <h1 className="policy-title">📜 Chính Sách Bảo Mật – Ứng Dụng <strong>Buukins</strong></h1>
-          
-          <p className="policy-date">Cập nhật lần cuối: <strong>31/07/2025</strong></p>
-          
+          <h1 className="policy-title">📜 Privacy Policy – <strong>Buukins</strong> App</h1>
+
+          <p className="policy-date">Last Updated: <strong>31/07/2025</strong></p>
+
           <p className="policy-intro">
-            Ứng dụng <strong>Buukins</strong> cam kết bảo vệ quyền riêng tư của người dùng. Chính sách này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn khi sử dụng ứng dụng.
+            <strong>Buukins</strong> is committed to protecting user privacy. This policy outlines how we collect, use, and protect your personal information when using the app.
           </p>
 
           <hr className="policy-divider" />
 
           <section className="policy-section">
-            <h2 className="section-title">1. Thông Tin Chúng Tôi Thu Thập</h2>
-            <p>
-              Chúng tôi thu thập thông tin bạn cung cấp khi sử dụng Buukins để tạo trang cá nhân, đăng tải dịch vụ và quản lý booking:
-            </p>
+            <h2 className="section-title">1. Information We Collect</h2>
+            <p>We collect information that you provide when using Buukins to create your profile, publish services, and manage bookings:</p>
             <ul className="policy-list">
-              <li><strong>Thông tin cá nhân:</strong> tên, email, số điện thoại, ngày sinh, ảnh đại diện, liên kết mạng xã hội.</li>
-              <li><strong>Ảnh đại diện:</strong> yêu cầu quyền truy cập <strong>Camera</strong> hoặc <strong>Thư viện ảnh (Gallery)</strong> khi người dùng cập nhật avatar.</li>
-              <li><strong>Thông tin dịch vụ & booking:</strong> tên dịch vụ, giá, lịch hẹn, trạng thái, số lượt booking, khách hàng,...</li>
-              <li><strong>Thông tin phân tích:</strong> qua Google Firebase & Google Analytics để cải thiện hiệu năng & trải nghiệm người dùng.</li>
+              <li><strong>Personal information:</strong> name, email, phone number, date of birth, profile picture, social media links.</li>
+              <li><strong>Profile picture:</strong> requires access to <strong>Camera</strong> or <strong>Gallery</strong> when updating your avatar.</li>
+              <li><strong>Service & booking information:</strong> service name, price, schedule, status, booking count, customer details, etc.</li>
+              <li><strong>Analytics data:</strong> collected via Google Firebase & Google Analytics to improve performance and user experience.</li>
             </ul>
           </section>
 
           <section className="policy-section">
-            <h2 className="section-title">2. Mục Đích Sử Dụng Dữ Liệu</h2>
-            <p>Thông tin được sử dụng để:</p>
+            <h2 className="section-title">2. Purpose of Data Usage</h2>
+            <p>Information is used to:</p>
             <ul className="policy-list">
-              <li>Cung cấp và duy trì hoạt động của app</li>
-              <li>Cho phép người dùng tạo hồ sơ, đăng dịch vụ, và nhận booking từ khách hàng</li>
-              <li>Quản lý lịch hẹn, thông báo trạng thái đặt lịch</li>
-              <li>Hiển thị thống kê và phân tích doanh thu theo gói sử dụng</li>
-              <li>Phân tích hành vi người dùng nhằm nâng cấp tính năng</li>
-              <li>Quản lý giao dịch và thanh toán thông qua <strong>In-App Purchase</strong></li>
+              <li>Provide and maintain the app's functionality</li>
+              <li>Allow users to create profiles, publish services, and receive bookings from clients</li>
+              <li>Manage appointments and notify booking status</li>
+              <li>Display statistics and revenue analysis based on subscription plans</li>
+              <li>Analyze user behavior to improve features</li>
+              <li>Manage transactions and payments via <strong>In-App Purchase</strong></li>
             </ul>
           </section>
 
           <section className="policy-section">
-            <h2 className="section-title">3. Quyền Truy Cập Ứng Dụng</h2>
-            <p>Buukins yêu cầu một số quyền hạn để hoạt động đúng chức năng:</p>
+            <h2 className="section-title">3. App Permissions</h2>
+            <p>Buukins requires certain permissions to function properly:</p>
             <div className="permissions-table">
               <table>
                 <thead>
                   <tr>
-                    <th>Quyền</th>
-                    <th>Mục đích</th>
+                    <th>Permission</th>
+                    <th>Purpose</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Camera / Ảnh</td>
-                    <td>Để cập nhật ảnh đại diện người dùng</td>
+                    <td>Camera / Gallery</td>
+                    <td>To update the user's profile picture</td>
                   </tr>
                   <tr>
                     <td>Internet</td>
-                    <td>Để đồng bộ dữ liệu & kết nối dịch vụ Firebase</td>
+                    <td>To sync data and connect with Firebase services</td>
                   </tr>
                   <tr>
-                    <td>Thông báo</td>
-                    <td>Gửi update về trạng thái booking</td>
+                    <td>Notifications</td>
+                    <td>To send updates regarding booking status</td>
                   </tr>
                 </tbody>
               </table>
@@ -78,43 +76,41 @@ const PrivacyPolicyPage: NextPage = () => {
           </section>
 
           <section className="policy-section">
-            <h2 className="section-title">4. Dữ Liệu Bên Thứ Ba</h2>
+            <h2 className="section-title">4. Third-Party Data</h2>
             <p>
-              Chúng tôi <strong>không chia sẻ thông tin cá nhân của bạn cho bất kỳ bên thứ ba nào</strong> không liên quan đến chức năng của Buukins. Tuy nhiên, chúng tôi có sử dụng các nền tảng sau để cung cấp dịch vụ:
+              We <strong>do not share your personal data</strong> with any unrelated third parties. However, we use the following platforms to deliver services:
             </p>
             <ul className="policy-list">
-              <li><strong>Google Firebase</strong> (lưu trữ dữ liệu, xác thực người dùng)</li>
-              <li><strong>Google Analytics</strong> (phân tích hành vi người dùng)</li>
-              <li><strong>AdMob (tùy chọn trong tương lai)</strong> để hiển thị quảng cáo</li>
+              <li><strong>Google Firebase</strong> (data storage, user authentication)</li>
+              <li><strong>Google Analytics</strong> (user behavior analysis)</li>
+              <li><strong>AdMob (optional in future)</strong> for advertising</li>
             </ul>
-            <p>Các nền tảng này đều tuân thủ chính sách bảo mật và các quy định quốc tế như GDPR.</p>
+            <p>These platforms comply with privacy regulations such as GDPR.</p>
           </section>
 
           <section className="policy-section">
-            <h2 className="section-title">5. Lưu Trữ & Bảo Mật</h2>
-            <p>
-              Dữ liệu người dùng được lưu trữ bảo mật trên hệ thống cloud của Buukins (ví dụ: Firebase). Chúng tôi áp dụng:
-            </p>
+            <h2 className="section-title">5. Data Storage & Security</h2>
+            <p>User data is securely stored on Buukins' cloud systems (e.g., Firebase). We implement:</p>
             <ul className="policy-list">
-              <li>Xác thực người dùng</li>
-              <li>Hạn chế truy cập dữ liệu trái phép</li>
-              <li>Mã hóa các dữ liệu nhạy cảm</li>
+              <li>User authentication</li>
+              <li>Restricted access to unauthorized data</li>
+              <li>Encryption of sensitive information</li>
             </ul>
           </section>
 
           <section className="policy-section">
-            <h2 className="section-title">6. Quyền Lợi Người Dùng</h2>
-            <p>Bạn có quyền:</p>
+            <h2 className="section-title">6. User Rights</h2>
+            <p>You have the right to:</p>
             <ul className="policy-list">
-              <li>Xem, chỉnh sửa, xoá thông tin cá nhân</li>
-              <li>Yêu cầu xoá tài khoản và toàn bộ dữ liệu liên quan</li>
-              <li>Ngừng sử dụng app bất kỳ lúc nào mà không bị lưu giữ trái phép</li>
+              <li>View, edit, or delete your personal information</li>
+              <li>Request account and associated data deletion</li>
+              <li>Stop using the app anytime without unauthorized data retention</li>
             </ul>
           </section>
 
           <section className="policy-section">
-            <h2 className="section-title">7. Liên Hệ</h2>
-            <p>Mọi thắc mắc hoặc yêu cầu liên quan đến quyền riêng tư, vui lòng liên hệ:</p>
+            <h2 className="section-title">7. Contact</h2>
+            <p>If you have any questions or concerns regarding privacy, please contact us:</p>
             <div className="contact-info">
               <p>📧 <strong>Email</strong>: <a href="mailto:chuphuhai1993@gmail.com">chuphuhai1993@gmail.com</a></p>
               <p>🌐 <strong>Website</strong>: <a href="https://buukins.com" target="_blank" rel="noopener noreferrer">https://buukins.com</a></p>
@@ -122,13 +118,14 @@ const PrivacyPolicyPage: NextPage = () => {
           </section>
 
           <section className="policy-section">
-            <h2 className="section-title">8. Cập Nhật Chính Sách</h2>
+            <h2 className="section-title">8. Policy Updates</h2>
             <p>
-              Buukins có thể cập nhật chính sách bảo mật bất kỳ lúc nào. Thông báo sẽ được gửi trong app khi có thay đổi lớn. Người dùng nên thường xuyên kiểm tra để cập nhật phiên bản mới nhất.
+              Buukins may update this privacy policy at any time. Notifications will be sent in-app for major changes. Users are encouraged to check regularly for the latest version.
             </p>
           </section>
         </div>
       </div>
+
 
       <style jsx>{`
         .privacy-policy-container {
