@@ -26,7 +26,8 @@ const PrivacyPolicyPage: NextPage = () => {
             <h2 className="section-title">1. Information We Collect</h2>
             <p>We collect information that you provide when using Buukins to create your profile, publish services, and manage bookings:</p>
             <ul className="policy-list">
-              <li><strong>Personal information:</strong> name, email, phone number, date of birth, profile picture, social media links.</li>
+              <li><strong>Account registration & login information:</strong> email, password, and authentication data collected when you sign up or sign in via Buukins or third-party authentication providers (e.g., Google, Apple). This information is used solely for account authentication and to provide personalized app features.</li>
+              <li><strong>Payment information:</strong> payment method, payment status, payment amount, payment date, payment method, payment status, payment amount, payment date.</li>
               <li><strong>Profile picture:</strong> requires access to <strong>Camera</strong> or <strong>Gallery</strong> when updating your avatar.</li>
               <li><strong>Service & booking information:</strong> service name, price, schedule, status, booking count, customer details, etc.</li>
               <li><strong>Analytics data:</strong> collected via Google Firebase & Google Analytics to improve performance and user experience.</li>
@@ -43,6 +44,7 @@ const PrivacyPolicyPage: NextPage = () => {
               <li>Display statistics and revenue analysis based on subscription plans</li>
               <li>Analyze user behavior to improve features</li>
               <li>Manage transactions and payments via <strong>In-App Purchase</strong></li>
+              <li>Authenticate users during sign-in and protect accounts from unauthorized access</li>
             </ul>
           </section>
 
